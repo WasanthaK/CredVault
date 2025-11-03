@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:CredVault.Mobile.ViewModels"
+             x:Class="CredVault.Mobile.Views.ConsentReviewPage"
+             x:DataType="vm:AddCredentialViewModel"
+             Title="Consent &amp; Review"
+             Shell.NavBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
+        
+        <!-- Top App Bar -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Padding="16,16,16,8">
+            <Button Grid.Column="0"
+                    Text="&#xE5C4;"
+                    FontFamily="MaterialSymbols"
+                    FontSize="24"
+                    BackgroundColor="Transparent"
+                    TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"
+                    Command="{Binding CancelCommand}"
+                    WidthRequest="48"
+                    HeightRequest="48"/>
+            
+            <Label Grid.Column="1"
+                   Text="Consent &amp; Review"
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   HorizontalTextAlignment="Center"
+                   VerticalTextAlignment="Center"
+                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+            
+            <BoxView Grid.Column="2" WidthRequest="48"/>
+        </Grid>
+
+        <!-- Page Indicators -->
+        <HorizontalStackLayout Grid.Row="1" 
+                              HorizontalOptions="Center" 
+                              Spacing="12" 
+                              Padding="0,12">
+            <BoxView WidthRequest="8" 
+                     HeightRequest="8" 
+                     CornerRadius="4"
+                     Color="#4D004bad"/>
+            <BoxView WidthRequest="8" 
+                     HeightRequest="8" 
+                     CornerRadius="4"
+                     Color="#4D004bad"/>
+            <BoxView WidthRequest="8" 
+                     HeightRequest="8" 
+                     CornerRadius="4"
+                     Color="{StaticResource Primary}"/>
+        </HorizontalStackLayout>
+
+        <!-- Content -->
+        <ScrollView Grid.Row="2" Padding="16,8,16,16">
+            <VerticalStackLayout Spacing="16">
+                
+                <!-- Instructional Text -->
+                <Label Text="Please review the following information that will be used to issue your new credential."
+                       FontSize="16"
+                       HorizontalTextAlignment="Center"
+                       LineHeight="1.5"
+                       TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
+
+                <!-- Credential Details Card -->
+                <Border StrokeThickness="0"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark=#1F142E}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="12"/>
+                    </Border.StrokeShape>
+                    
+                    <VerticalStackLayout>
+                        <!-- Section Header -->
+                        <Label Text="Credential Details"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               Padding="16"
+                               TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+                        
+                        <BoxView HeightRequest="1" 
+                                 Color="{AppThemeBinding Light={StaticResource Gray200}, Dark=#33204b}"/>
+
+                        <!-- Claims List -->
+                        <CollectionView ItemsSource="{Binding ClaimsToIssue}">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="vm:CredentialClaimInfo">
+                                    <Grid ColumnDefinitions="Auto,*" 
+                                          Padding="16" 
+                                          ColumnSpacing="16"
+                                          RowSpacing="4">
+                                        
+                                        <!-- Icon -->
+                                        <Border Grid.Column="0"
+                                                StrokeThickness="0"
+                                                WidthRequest="48"
+                                                HeightRequest="48"
+                                                BackgroundColor="#1A004bad"
+                                                VerticalOptions="Start">
+                                            <Border.StrokeShape>
+                                                <RoundRectangle CornerRadius="12"/>
+                                            </Border.StrokeShape>
+                                            <Label Text="{Binding Icon, Converter={StaticResource MaterialIconConverter}}"
+                                                   FontFamily="MaterialSymbols"
+                                                   FontSize="24"
+                                                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="Center"/>
+                                        </Border>
+
+                                        <!-- Text -->
+                                        <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
+                                            <Label Text="{Binding Label}"
+                                                   FontSize="14"
+                                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
+                                            <Label Text="{Binding Value}"
+                                                   FontSize="16"
+                                                   FontAttributes="Bold"
+                                                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+                                        </VerticalStackLayout>
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                            <CollectionView.ItemsLayout>
+                                <LinearItemsLayout Orientation="Vertical" ItemSpacing="0"/>
+                            </CollectionView.ItemsLayout>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Consent Checkboxes -->
+                <VerticalStackLayout Spacing="12" Margin="0,8,0,0">
+                    <!-- Review Checkbox -->
+                    <Border StrokeThickness="1"
+                            Stroke="{AppThemeBinding Light={StaticResource Gray300}, Dark=#33204b}"
+                            Padding="12"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark=#1F142E}">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="8"/>
+                        </Border.StrokeShape>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ToggleReviewedCommand}"/>
+                        </Border.GestureRecognizers>
+                        
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                            <CheckBox Grid.Column="0"
+                                     IsChecked="{Binding HasReviewedClaims}"
+                                     Color="{StaticResource Primary}"/>
+                            <Label Grid.Column="1"
+                                   Text="I have reviewed the information above"
+                                   FontSize="14"
+                                   VerticalOptions="Center"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Consent Checkbox -->
+                    <Border StrokeThickness="1"
+                            Stroke="{AppThemeBinding Light={StaticResource Gray300}, Dark=#33204b}"
+                            Padding="12"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark=#1F142E}">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="8"/>
+                        </Border.StrokeShape>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ToggleConsentCommand}"/>
+                        </Border.GestureRecognizers>
+                        
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                            <CheckBox Grid.Column="0"
+                                     IsChecked="{Binding HasConsentedToIssuance}"
+                                     Color="{StaticResource Primary}"/>
+                            <Label Grid.Column="1"
+                                   FontSize="14"
+                                   VerticalOptions="Center"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}">
+                                <Label.FormattedText>
+                                    <FormattedString>
+                                        <Span Text="I consent to "/>
+                                        <Span Text="{Binding IssuerName}"/>
+                                        <Span Text=" issuing this credential to my wallet"/>
+                                    </FormattedString>
+                                </Label.FormattedText>
+                            </Label>
+                        </Grid>
+                    </Border>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Bottom Button -->
+        <Button Grid.Row="3"
+                Text="Confirm and Add Credential"
+                Command="{Binding ConfirmIssuanceCommand}"
+                BackgroundColor="{StaticResource Primary}"
+                TextColor="{StaticResource White}"
+                FontAttributes="Bold"
+                FontSize="16"
+                HeightRequest="48"
+                Margin="16"
+                CornerRadius="12"/>
+    </Grid>
+</ContentPage>

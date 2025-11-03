@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:CredVault.Mobile.ViewModels"
+             x:Class="CredVault.Mobile.Views.RegisterPage"
+             x:DataType="viewmodels:RegisterViewModel"
+             Shell.NavBarIsVisible="True"
+             Title="Create Account">
+    
+    <ScrollView>
+        <VerticalStackLayout Padding="30" Spacing="20">
+            
+            <Label Text="Join CredVault" 
+                   FontSize="28" 
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   Margin="0,20,0,10"/>
+            
+            <Label Text="Create your digital identity wallet" 
+                   FontSize="14" 
+                   TextColor="{StaticResource Gray600}"
+                   HorizontalOptions="Center"
+                   Margin="0,0,0,20"/>
+            
+            <!-- Registration Form -->
+            <Frame BorderColor="{StaticResource Gray200}" 
+                   CornerRadius="8" 
+                   Padding="20"
+                   HasShadow="False">
+                <VerticalStackLayout Spacing="15">
+                    
+                    <Label Text="Username *" FontAttributes="Bold"/>
+                    <Entry Text="{Binding Username}"
+                           Placeholder="Choose a unique username"
+                           AutomationId="UsernameEntry"/>
+                    
+                    <Label Text="Email *" FontAttributes="Bold" Margin="0,10,0,0"/>
+                    <Entry Text="{Binding Email}"
+                           Placeholder="your.email@example.com"
+                           Keyboard="Email"
+                           AutomationId="EmailEntry"/>
+                    
+                    <Label Text="Password *" FontAttributes="Bold" Margin="0,10,0,0"/>
+                    <Entry Text="{Binding Password}"
+                           Placeholder="Choose a strong password"
+                           IsPassword="True"
+                           AutomationId="PasswordEntry"/>
+                    <Label Text="Must contain uppercase, lowercase, number, and special character"
+                           FontSize="12"
+                           TextColor="{StaticResource Gray600}"/>
+                    
+                    <Label Text="Confirm Password *" FontAttributes="Bold" Margin="0,10,0,0"/>
+                    <Entry Text="{Binding ConfirmPassword}"
+                           Placeholder="Re-enter your password"
+                           IsPassword="True"
+                           AutomationId="ConfirmPasswordEntry"/>
+                    
+                    <Label Text="First Name (Optional)" FontAttributes="Bold" Margin="0,10,0,0"/>
+                    <Entry Text="{Binding FirstName}"
+                           Placeholder="Your first name"
+                           AutomationId="FirstNameEntry"/>
+                    
+                    <Label Text="Last Name (Optional)" FontAttributes="Bold" Margin="0,10,0,0"/>
+                    <Entry Text="{Binding LastName}"
+                           Placeholder="Your last name"
+                           AutomationId="LastNameEntry"/>
+                    
+                    <Label Text="Phone Number (Optional)" FontAttributes="Bold" Margin="0,10,0,0"/>
+                    <Entry Text="{Binding PhoneNumber}"
+                           Placeholder="+1234567890"
+                           Keyboard="Telephone"
+                           AutomationId="PhoneEntry"/>
+                    
+                    <!-- Error Message -->
+                    <Label Text="{Binding ErrorMessage}"
+                           TextColor="{StaticResource Danger}"
+                           IsVisible="{Binding HasError}"
+                           Margin="0,10,0,0"/>
+                    
+                    <!-- Success Message -->
+                    <Label Text="{Binding SuccessMessage}"
+                           TextColor="{StaticResource Success}"
+                           IsVisible="{Binding HasSuccess}"
+                           Margin="0,10,0,0"/>
+                    
+                    <!-- Register Button -->
+                    <Button Text="Create Account"
+                            Command="{Binding RegisterCommand}"
+                            BackgroundColor="{StaticResource Primary}"
+                            TextColor="White"
+                            CornerRadius="8"
+                            Margin="0,20,0,0"
+                            HeightRequest="50"
+                            AutomationId="RegisterButton"/>
+                    
+                    <!-- Loading Indicator -->
+                    <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                      IsVisible="{Binding IsBusy}"
+                                      Color="{StaticResource Primary}"
+                                      Margin="0,10,0,0"/>
+                    
+                </VerticalStackLayout>
+            </Frame>
+            
+            <!-- Back to Login -->
+            <HorizontalStackLayout HorizontalOptions="Center" Spacing="5" Margin="0,20,0,40">
+                <Label Text="Already have an account?" TextColor="{StaticResource Gray600}"/>
+                <Label Text="Login"
+                       TextColor="{StaticResource Primary}"
+                       FontAttributes="Bold"
+                       TextDecorations="Underline">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding NavigateToLoginCommand}"/>
+                    </Label.GestureRecognizers>
+                </Label>
+            </HorizontalStackLayout>
+            
+        </VerticalStackLayout>
+    </ScrollView>
+    
+</ContentPage>

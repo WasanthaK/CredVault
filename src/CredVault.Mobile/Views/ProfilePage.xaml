@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:CredVault.Mobile.ViewModels"
+             x:Class="CredVault.Mobile.Views.ProfilePage"
+             x:DataType="vm:ProfileViewModel"
+             Title="{Binding Title}"
+             Shell.NavBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,*">
+        
+        <!-- Top App Bar -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Padding="16" BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}">
+            <Button Grid.Column="0"
+                    Text="&#xE5C4;"
+                    FontFamily="MaterialSymbols"
+                    FontSize="24"
+                    BackgroundColor="Transparent"
+                    TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"
+                    Command="{Binding GoBackCommand}"
+                    WidthRequest="48"
+                    HeightRequest="48"/>
+            
+            <Label Grid.Column="1"
+                   Text="{Binding Title}"
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   HorizontalTextAlignment="Center"
+                   VerticalTextAlignment="Center"
+                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+            
+            <Button Grid.Column="2"
+                    Text="{Binding IsEditing, Converter={StaticResource ConditionalTextConverter}, ConverterParameter='&#xE5CA;|&#xE3C9;'}"
+                    FontFamily="MaterialSymbols"
+                    FontSize="24"
+                    BackgroundColor="Transparent"
+                    TextColor="{StaticResource Primary}"
+                    Command="{Binding ToggleEditCommand}"
+                    WidthRequest="48"
+                    HeightRequest="48"
+                    IsVisible="{Binding IsLoading, Converter={StaticResource InvertedBoolConverter}}"/>
+        </Grid>
+
+        <!-- Main Content -->
+        <ScrollView Grid.Row="1" Padding="16">
+            <VerticalStackLayout Spacing="24">
+
+                <!-- Loading Indicator -->
+                <ActivityIndicator IsRunning="{Binding IsLoading}"
+                                 IsVisible="{Binding IsLoading}"
+                                 Color="{StaticResource Primary}"
+                                 VerticalOptions="Center"
+                                 HeightRequest="48"/>
+
+                <!-- Profile Picture Section -->
+                <VerticalStackLayout Spacing="16" HorizontalOptions="Center" IsVisible="{Binding IsLoading, Converter={StaticResource InvertedBoolConverter}}">
+                    <Border StrokeThickness="0"
+                            WidthRequest="120"
+                            HeightRequest="120"
+                            HorizontalOptions="Center"
+                            BackgroundColor="{StaticResource Primary}">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="60"/>
+                        </Border.StrokeShape>
+                        
+                        <Grid>
+                            <!-- Profile Picture or Initials -->
+                            <Image Source="{Binding ProfilePictureUrl}"
+                                   Aspect="AspectFill"
+                                   IsVisible="{Binding ProfilePictureUrl, Converter={StaticResource StringNotEmptyConverter}}"/>
+                            
+                            <Label Text="{Binding Initials}"
+                                   FontSize="48"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource White}"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"
+                                   IsVisible="{Binding ProfilePictureUrl, Converter={StaticResource StringIsEmptyConverter}}"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Change Picture Button (when editing) -->
+                    <Button Text="Change Picture"
+                            FontSize="14"
+                            TextColor="{StaticResource Primary}"
+                            BackgroundColor="Transparent"
+                            Command="{Binding ChangeProfilePictureCommand}"
+                            IsVisible="{Binding IsEditing}"/>
+
+                    <!-- Display Name -->
+                    <Label Text="{Binding DisplayName}"
+                           FontSize="24"
+                           FontAttributes="Bold"
+                           HorizontalTextAlignment="Center"
+                           TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+
+                    <!-- Username -->
+                    <Label Text="{Binding Username, StringFormat='@{0}'}"
+                           FontSize="16"
+                           HorizontalTextAlignment="Center"
+                           TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
+                </VerticalStackLayout>
+
+                <!-- Profile Details Card -->
+                <Border StrokeThickness="0"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark=#172436}"
+                        Padding="16"
+                        IsVisible="{Binding IsLoading, Converter={StaticResource InvertedBoolConverter}}"
+                        Shadow="{AppThemeBinding Light={StaticResource DefaultShadow}}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="12"/>
+                    </Border.StrokeShape>
+
+                    <VerticalStackLayout Spacing="16">
+                        
+                        <!-- Section Header -->
+                        <Label Text="Personal Information"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+
+                        <!-- First Name -->
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="First Name"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
+                            <Entry Text="{Binding FirstName}"
+                                   Placeholder="Enter your first name"
+                                   IsEnabled="{Binding IsEditing}"
+                                   IsReadOnly="{Binding IsEditing, Converter={StaticResource InvertedBoolConverter}}"
+                                   BackgroundColor="{AppThemeBinding Light=#f5f5f5, Dark=#20334b}"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+                        </VerticalStackLayout>
+
+                        <!-- Last Name -->
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Last Name"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
+                            <Entry Text="{Binding LastName}"
+                                   Placeholder="Enter your last name"
+                                   IsEnabled="{Binding IsEditing}"
+                                   IsReadOnly="{Binding IsEditing, Converter={StaticResource InvertedBoolConverter}}"
+                                   BackgroundColor="{AppThemeBinding Light=#f5f5f5, Dark=#20334b}"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+                        </VerticalStackLayout>
+
+                        <!-- Email -->
+                        <VerticalStackLayout Spacing="8">
+                            <HorizontalStackLayout Spacing="8">
+                                <Label Text="Email"
+                                       FontSize="14"
+                                       VerticalOptions="Center"
+                                       TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
+                                <Label Text="&#xE86C;"
+                                       FontFamily="MaterialSymbols"
+                                       FontSize="18"
+                                       TextColor="#4caf50"
+                                       IsVisible="{Binding IsEmailVerified}"/>
+                            </HorizontalStackLayout>
+                            <Entry Text="{Binding Email}"
+                                   Placeholder="Enter your email"
+                                   Keyboard="Email"
+                                   IsEnabled="{Binding IsEditing}"
+                                   IsReadOnly="{Binding IsEditing, Converter={StaticResource InvertedBoolConverter}}"
+                                   BackgroundColor="{AppThemeBinding Light=#f5f5f5, Dark=#20334b}"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+                        </VerticalStackLayout>
+
+                        <!-- Phone Number -->
+                        <VerticalStackLayout Spacing="8">
+                            <HorizontalStackLayout Spacing="8">
+                                <Label Text="Phone Number"
+                                       FontSize="14"
+                                       VerticalOptions="Center"
+                                       TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
+                                <Label Text="&#xE86C;"
+                                       FontFamily="MaterialSymbols"
+                                       FontSize="18"
+                                       TextColor="#4caf50"
+                                       IsVisible="{Binding IsPhoneVerified}"/>
+                            </HorizontalStackLayout>
+                            <Entry Text="{Binding PhoneNumber}"
+                                   Placeholder="Enter your phone number"
+                                   Keyboard="Telephone"
+                                   IsEnabled="{Binding IsEditing}"
+                                   IsReadOnly="{Binding IsEditing, Converter={StaticResource InvertedBoolConverter}}"
+                                   BackgroundColor="{AppThemeBinding Light=#f5f5f5, Dark=#20334b}"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+                        </VerticalStackLayout>
+
+                        <!-- Date of Birth -->
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Date of Birth"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
+                            <Entry Text="{Binding DateOfBirth, StringFormat='{0:yyyy-MM-dd}'}"
+                                   Placeholder="YYYY-MM-DD"
+                                   IsEnabled="{Binding IsEditing}"
+                                   IsReadOnly="{Binding IsEditing, Converter={StaticResource InvertedBoolConverter}}"
+                                   BackgroundColor="{AppThemeBinding Light=#f5f5f5, Dark=#20334b}"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+                        </VerticalStackLayout>
+
+                        <!-- Gender -->
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Gender"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
+                            <Picker Title="Select gender"
+                                    SelectedItem="{Binding Gender}"
+                                    IsEnabled="{Binding IsEditing}"
+                                    BackgroundColor="{AppThemeBinding Light=#f5f5f5, Dark=#20334b}"
+                                    TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}">
+                                <Picker.ItemsSource>
+                                    <x:Array Type="{x:Type x:String}">
+                                        <x:String>Male</x:String>
+                                        <x:String>Female</x:String>
+                                        <x:String>Non-binary</x:String>
+                                        <x:String>Prefer not to say</x:String>
+                                    </x:Array>
+                                </Picker.ItemsSource>
+                            </Picker>
+                        </VerticalStackLayout>
+
+                        <!-- Country -->
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Country"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
+                            <Entry Text="{Binding Country}"
+                                   Placeholder="Enter your country"
+                                   IsEnabled="{Binding IsEditing}"
+                                   IsReadOnly="{Binding IsEditing, Converter={StaticResource InvertedBoolConverter}}"
+                                   BackgroundColor="{AppThemeBinding Light=#f5f5f5, Dark=#20334b}"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Account Info Card -->
+                <Border StrokeThickness="0"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark=#172436}"
+                        Padding="16"
+                        IsVisible="{Binding IsLoading, Converter={StaticResource InvertedBoolConverter}}"
+                        Shadow="{AppThemeBinding Light={StaticResource DefaultShadow}}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="12"/>
+                    </Border.StrokeShape>
+
+                    <VerticalStackLayout Spacing="16">
+                        
+                        <!-- Section Header -->
+                        <Label Text="Account Information"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+
+                        <!-- User ID -->
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="User ID"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
+                            <Label Text="{Binding UserId}"
+                                   FontSize="14"
+                                   FontFamily="Courier"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+                        </VerticalStackLayout>
+
+                        <!-- Last Login -->
+                        <VerticalStackLayout Spacing="8" IsVisible="{Binding LastLoginAt, Converter={StaticResource IsNotNullConverter}}">
+                            <Label Text="Last Login"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
+                            <Label Text="{Binding LastLoginAt, StringFormat='{0:MMM dd, yyyy h:mm tt}'}"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Save Button (when editing) -->
+                <Button Text="Save Changes"
+                        FontSize="16"
+                        FontAttributes="Bold"
+                        HeightRequest="48"
+                        BackgroundColor="{StaticResource Primary}"
+                        TextColor="{StaticResource White}"
+                        CornerRadius="24"
+                        Command="{Binding SaveProfileCommand}"
+                        IsVisible="{Binding IsEditing}"
+                        Margin="0,8,0,16"/>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

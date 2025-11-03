@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:CredVault.Mobile.ViewModels"
+             x:Class="CredVault.Mobile.Views.SelectiveDisclosurePage"
+             x:DataType="vm:PresentationViewModel"
+             Title="Review &amp; Share"
+             Shell.NavBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+        
+        <!-- Top App Bar -->
+        <Grid Grid.Row="0" Padding="16" BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}">
+            <Button HorizontalOptions="Start"
+                    Text="&#xE5CD;"
+                    FontFamily="MaterialSymbols"
+                    FontSize="24"
+                    BackgroundColor="Transparent"
+                    TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"
+                    Command="{Binding DenyCommand}"
+                    WidthRequest="48"
+                    HeightRequest="48"/>
+            
+            <Label Text="Review &amp; Share"
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   HorizontalTextAlignment="Center"
+                   VerticalTextAlignment="Center"
+                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+        </Grid>
+
+        <!-- Main Content -->
+        <ScrollView Grid.Row="1" Padding="16">
+            <VerticalStackLayout Spacing="24">
+                
+                <!-- Requester Info -->
+                <HorizontalStackLayout Spacing="16">
+                    <Border StrokeThickness="1"
+                            Stroke="{AppThemeBinding Light=#e5e7eb, Dark=#374151}"
+                            WidthRequest="40"
+                            HeightRequest="40">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="20"/>
+                        </Border.StrokeShape>
+                        <Label Text="{Binding VerifierIcon, StringFormat='&amp;#{0};'}"
+                               FontFamily="MaterialSymbols"
+                               FontSize="24"
+                               TextColor="{StaticResource Primary}"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"/>
+                    </Border>
+                    
+                    <Label Text="{Binding VerifierName, StringFormat='Information requested by {0}'}"
+                           FontSize="16"
+                           VerticalOptions="Center"
+                           TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+                </HorizontalStackLayout>
+
+                <!-- Disclosure Card -->
+                <Border StrokeThickness="0"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark=#241736}"
+                        Padding="24"
+                        Shadow="{AppThemeBinding Light={StaticResource DefaultShadow}}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="12"/>
+                    </Border.StrokeShape>
+                    
+                    <VerticalStackLayout Spacing="16">
+                        <Label Text="From your National ID"
+                               FontSize="14"
+                               TextColor="{AppThemeBinding Light=#6c757d, Dark=#a98dce}"/>
+
+                        <!-- Shared Claims Section -->
+                        <VerticalStackLayout Spacing="12">
+                            <CollectionView ItemsSource="{Binding DataToShare}"
+                                          SelectionMode="None">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:PresentationClaimInfo">
+                                        <Grid ColumnDefinitions="*,Auto" 
+                                              Padding="0,8"
+                                              ColumnSpacing="24"
+                                              IsVisible="{Binding WillBeShared}">
+                                            
+                                            <Label Grid.Column="0"
+                                                   Text="{Binding Label}"
+                                                   FontSize="14"
+                                                   VerticalOptions="Center"
+                                                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+                                            
+                                            <HorizontalStackLayout Grid.Column="1" Spacing="8">
+                                                <Label Text="&#xE86C;"
+                                                       FontFamily="MaterialSymbols"
+                                                       FontSize="16"
+                                                       TextColor="#28a745"
+                                                       VerticalOptions="Center"/>
+                                                <Label Text="Will Share"
+                                                       FontSize="14"
+                                                       FontAttributes="Bold"
+                                                       TextColor="#28a745"
+                                                       VerticalOptions="Center"/>
+                                            </HorizontalStackLayout>
+                                        </Grid>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </VerticalStackLayout>
+
+                        <!-- Divider -->
+                        <BoxView HeightRequest="1"
+                                 Color="{AppThemeBinding Light=#e5e7eb, Dark=#374151}"
+                                 Margin="0,8"/>
+
+                        <!-- Hidden Claims Section -->
+                        <VerticalStackLayout Spacing="12">
+                            <Label Text="Your other details will remain hidden"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light=#6c757d, Dark=#a98dce}"/>
+
+                            <CollectionView ItemsSource="{Binding DataToShare}"
+                                          SelectionMode="None">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:PresentationClaimInfo">
+                                        <Grid ColumnDefinitions="*,Auto" 
+                                              Padding="0,8"
+                                              ColumnSpacing="24"
+                                              IsVisible="{Binding WillBeShared, Converter={StaticResource InvertedBoolConverter}}">
+                                            
+                                            <Label Grid.Column="0"
+                                                   Text="{Binding Label}"
+                                                   FontSize="14"
+                                                   VerticalOptions="Center"
+                                                   TextColor="{AppThemeBinding Light=#6c757d, Dark=#a98dce}"/>
+                                            
+                                            <HorizontalStackLayout Grid.Column="1" Spacing="8">
+                                                <Label Text="&#xE897;"
+                                                       FontFamily="MaterialSymbols"
+                                                       FontSize="16"
+                                                       TextColor="#6c757d"
+                                                       VerticalOptions="Center"/>
+                                                <Label Text="Hidden"
+                                                       FontSize="14"
+                                                       FontAttributes="Bold"
+                                                       TextColor="#6c757d"
+                                                       VerticalOptions="Center"/>
+                                            </HorizontalStackLayout>
+                                        </Grid>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Privacy Notice -->
+                <Label Text="Only the requested claim will be shared. Your other personal details will remain private and secure."
+                       FontSize="14"
+                       HorizontalTextAlignment="Center"
+                       TextColor="{AppThemeBinding Light=#6c757d, Dark=#a98dce}"
+                       Padding="16,0"/>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Footer Buttons -->
+        <Border Grid.Row="2" 
+                Padding="16"
+                StrokeThickness="1,0,0,0"
+                Stroke="{AppThemeBinding Light=#e0e0e0, Dark=#424242}"
+                BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}">
+            <VerticalStackLayout Spacing="12">
+                <Button Text="Share Information"
+                        FontSize="16"
+                        FontAttributes="Bold"
+                        HeightRequest="48"
+                        BackgroundColor="{StaticResource Primary}"
+                        TextColor="{StaticResource White}"
+                        CornerRadius="12"
+                        Command="{Binding ApproveAndPresentCommand}"/>
+                
+                <Button Text="Cancel"
+                        FontSize="16"
+                        FontAttributes="Bold"
+                        HeightRequest="48"
+                        BackgroundColor="Transparent"
+                        TextColor="{StaticResource Primary}"
+                        BorderColor="{StaticResource Primary}"
+                        BorderWidth="1"
+                        CornerRadius="12"
+                        Command="{Binding DenyCommand}"/>
+            </VerticalStackLayout>
+        </Border>
+    </Grid>
+</ContentPage>

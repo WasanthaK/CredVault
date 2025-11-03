@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:CredVault.Mobile.ViewModels"
+             x:Class="CredVault.Mobile.Views.ActivityLogPage"
+             x:DataType="vm:ActivityLogViewModel"
+             Title="{Binding Title}"
+             Shell.NavBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,Auto,*">
+        
+        <!-- Top App Bar -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Padding="16" BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}">
+            <Button Grid.Column="0"
+                    Text="&#xE5C4;"
+                    FontFamily="MaterialSymbols"
+                    FontSize="24"
+                    BackgroundColor="Transparent"
+                    TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"
+                    Command="{Binding GoBackCommand}"
+                    WidthRequest="48"
+                    HeightRequest="48"/>
+            
+            <Label Grid.Column="1"
+                   Text="{Binding Title}"
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   HorizontalTextAlignment="Center"
+                   VerticalTextAlignment="Center"
+                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+            
+            <BoxView Grid.Column="2" WidthRequest="48" HeightRequest="48" Color="Transparent"/>
+        </Grid>
+
+        <!-- Filter Section -->
+        <Border Grid.Row="1"
+                StrokeThickness="0,0,0,1"
+                Stroke="{AppThemeBinding Light=#e0e0e0, Dark=#424242}"
+                BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}"
+                Padding="16,8">
+            <HorizontalStackLayout Spacing="12">
+                <Label Text="Filter:"
+                       FontSize="14"
+                       VerticalOptions="Center"
+                       TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
+                <Picker ItemsSource="{Binding FilterOptions}"
+                        SelectedItem="{Binding SelectedFilter}"
+                        FontSize="14"
+                        WidthRequest="120"
+                        SelectedIndexChanged="OnFilterChanged"
+                        BackgroundColor="{AppThemeBinding Light=#f5f5f5, Dark=#20334b}"
+                        TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+            </HorizontalStackLayout>
+        </Border>
+
+        <!-- Activity List -->
+        <RefreshView Grid.Row="2"
+                     IsRefreshing="{Binding IsRefreshing}"
+                     Command="{Binding RefreshActivitiesCommand}">
+            <CollectionView ItemsSource="{Binding Activities}"
+                            SelectionMode="None"
+                            RemainingItemsThreshold="5"
+                            RemainingItemsThresholdReachedCommand="{Binding LoadMoreActivitiesCommand}">
+                
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Spacing="16"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center"
+                                       Padding="32">
+                        <Label Text="&#xE889;"
+                               FontFamily="MaterialSymbols"
+                               FontSize="64"
+                               HorizontalTextAlignment="Center"
+                               TextColor="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray600}}"/>
+                        <Label Text="No activity yet"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               HorizontalTextAlignment="Center"
+                               TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+                        <Label Text="Your credential activity will appear here"
+                               FontSize="14"
+                               HorizontalTextAlignment="Center"
+                               TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ActivityLogItem">
+                        <Border StrokeThickness="0"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark=#172436}"
+                                Margin="16,8">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="12"/>
+                            </Border.StrokeShape>
+                            
+                            <Grid ColumnDefinitions="Auto,*,Auto" Padding="16" ColumnSpacing="16">
+                                <!-- Icon -->
+                                <Border Grid.Column="0"
+                                        StrokeThickness="0"
+                                        WidthRequest="48"
+                                        HeightRequest="48"
+                                        VerticalOptions="Start">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="24"/>
+                                    </Border.StrokeShape>
+                                    <Border.BackgroundColor>
+                                        <Binding Path="IconColor" StringFormat="{}{0}1A"/>
+                                    </Border.BackgroundColor>
+                                    
+                                    <Label Text="{Binding Icon}"
+                                           FontFamily="MaterialSymbols"
+                                           FontSize="28"
+                                           TextColor="{Binding IconColor}"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center"/>
+                                </Border>
+
+                                <!-- Content -->
+                                <VerticalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
+                                    <Label Text="{Binding Action}"
+                                           FontSize="16"
+                                           FontAttributes="Bold"
+                                           TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+                                    <Label Text="{Binding Description}"
+                                           FontSize="14"
+                                           TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"
+                                           LineBreakMode="TailTruncation"
+                                           MaxLines="2"/>
+                                    <Label Text="{Binding CredentialId, StringFormat='ID: {0}'}"
+                                           FontSize="12"
+                                           FontFamily="Courier"
+                                           TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray500}}"
+                                           IsVisible="{Binding CredentialId, Converter={StaticResource StringNotEmptyConverter}}"/>
+                                </VerticalStackLayout>
+
+                                <!-- Time -->
+                                <Label Grid.Column="2"
+                                       Text="{Binding TimeAgo}"
+                                       FontSize="12"
+                                       VerticalOptions="Start"
+                                       TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray500}}"/>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+
+                <CollectionView.Footer>
+                    <VerticalStackLayout Padding="16" IsVisible="{Binding IsLoading}">
+                        <ActivityIndicator IsRunning="True"
+                                         Color="{StaticResource Primary}"
+                                         HeightRequest="32"/>
+                        <Label Text="Loading more..."
+                               FontSize="14"
+                               HorizontalTextAlignment="Center"
+                               TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"
+                               Margin="0,8,0,0"/>
+                    </VerticalStackLayout>
+                </CollectionView.Footer>
+            </CollectionView>
+        </RefreshView>
+
+        <!-- Loading Overlay (Initial Load) -->
+        <Grid Grid.RowSpan="3"
+              IsVisible="{Binding IsLoading}"
+              BackgroundColor="{AppThemeBinding Light=#99FFFFFF, Dark=#99000000}">
+            <VerticalStackLayout Spacing="16"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center">
+                <ActivityIndicator IsRunning="True"
+                                 Color="{StaticResource Primary}"
+                                 HeightRequest="48"/>
+                <Label Text="Loading activity..."
+                       FontSize="16"
+                       TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+            </VerticalStackLayout>
+        </Grid>
+    </Grid>
+</ContentPage>

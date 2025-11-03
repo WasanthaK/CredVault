@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CredVault.Mobile.Views.VerificationResultPage"
+             xmlns:vm="clr-namespace:CredVault.Mobile.ViewModels"
+             x:DataType="vm:VerifierViewModel"
+             Title="Verification Result"
+             BackgroundColor="{AppThemeBinding Light=#f5f5f5, Dark=#0a0f1a}">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+        
+        <!-- Header -->
+        <Grid Grid.Row="0" Padding="16" ColumnDefinitions="Auto,*,Auto">
+            <Button Grid.Column="0"
+                    Text="&#xe5c4;"
+                    FontFamily="MaterialSymbolsOutlined"
+                    FontSize="24"
+                    BackgroundColor="Transparent"
+                    TextColor="{AppThemeBinding Light=#000000, Dark=#ffffff}"
+                    WidthRequest="48"
+                    HeightRequest="48"
+                    Command="{Binding GoBackCommand}" />
+
+            <Label Grid.Column="1"
+                   Text="Verification Result"
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   TextColor="{AppThemeBinding Light=#000000, Dark=#ffffff}"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center" />
+
+            <Label Grid.Column="2"
+                   Text="Done"
+                   FontSize="16"
+                   FontAttributes="Bold"
+                   TextColor="#0b8458"
+                   VerticalOptions="Center"
+                   Padding="0,0,8,0">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding GoBackCommand}" />
+                </Label.GestureRecognizers>
+            </Label>
+        </Grid>
+
+        <!-- Main Content -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="16" Spacing="16">
+
+                <!-- Status Card (Valid) -->
+                <Frame CornerRadius="12"
+                       Padding="24"
+                       HasShadow="True"
+                       IsVisible="{Binding IsVerified}">
+                    <Frame.BackgroundColor>
+                        <AppThemeBinding Light="White" Dark="#1c2230" />
+                    </Frame.BackgroundColor>
+                    
+                    <VerticalStackLayout Spacing="12">
+                        <!-- Success Icon -->
+                        <Frame WidthRequest="64"
+                               HeightRequest="64"
+                               CornerRadius="32"
+                               Padding="0"
+                               HasShadow="False"
+                               BackgroundColor="#0b845820"
+                               HorizontalOptions="Center">
+                            <Label Text="&#xe8e3;"
+                                   FontFamily="MaterialSymbolsOutlined"
+                                   FontSize="40"
+                                   TextColor="#0b8458"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center" />
+                        </Frame>
+
+                        <Label Text="Credential Valid"
+                               FontSize="20"
+                               FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light=#000000, Dark=#e6e8ef}"
+                               HorizontalOptions="Center" />
+
+                        <Label Text="{Binding IssuerName, StringFormat='Issued by {0}'}"
+                               FontSize="14"
+                               TextColor="{AppThemeBinding Light=#666666, Dark=#a0a0a0}"
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Status Card (Invalid/Revoked/Expired) -->
+                <Frame CornerRadius="12"
+                       Padding="24"
+                       HasShadow="True"
+                       BackgroundColor="#D32F2F"
+                       IsVisible="{Binding IsVerified, Converter={StaticResource InvertedBoolConverter}}">
+                    
+                    <VerticalStackLayout Spacing="12">
+                        <!-- Error Icon -->
+                        <Frame WidthRequest="64"
+                               HeightRequest="64"
+                               CornerRadius="32"
+                               Padding="0"
+                               HasShadow="False"
+                               BackgroundColor="#ffffff20"
+                               HorizontalOptions="Center">
+                            <Label Text="&#xe002;"
+                                   FontFamily="MaterialSymbolsOutlined"
+                                   FontSize="40"
+                                   TextColor="White"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center" />
+                        </Frame>
+
+                        <Label Text="{Binding VerificationStatus}"
+                               FontSize="20"
+                               FontAttributes="Bold"
+                               TextColor="White"
+                               HorizontalOptions="Center" />
+
+                        <Label Text="{Binding StatusMessage}"
+                               FontSize="14"
+                               TextColor="#ffffffcc"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Details Card -->
+                <Frame CornerRadius="12"
+                       Padding="0"
+                       HasShadow="True">
+                    <Frame.BackgroundColor>
+                        <AppThemeBinding Light="White" Dark="#1c2230" />
+                    </Frame.BackgroundColor>
+                    
+                    <VerticalStackLayout>
+                        <!-- Holder Name -->
+                        <Grid Padding="24,20" ColumnDefinitions="35*,65*">
+                            <Label Grid.Column="0"
+                                   Text="Holder Name"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light=#666666, Dark=#a0a0a0}"
+                                   VerticalOptions="Center" />
+                            <Label Grid.Column="1"
+                                   Text="{Binding HolderName}"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light=#000000, Dark=#e6e8ef}"
+                                   HorizontalOptions="End"
+                                   VerticalOptions="Center" />
+                        </Grid>
+
+                        <BoxView HeightRequest="1" 
+                                 Color="{AppThemeBinding Light=#e0e0e0, Dark=#444444}"
+                                 Margin="24,0" />
+
+                        <!-- Credential Type -->
+                        <Grid Padding="24,20" ColumnDefinitions="35*,65*">
+                            <Label Grid.Column="0"
+                                   Text="Credential Type"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light=#666666, Dark=#a0a0a0}"
+                                   VerticalOptions="Center" />
+                            <Label Grid.Column="1"
+                                   Text="{Binding CredentialType}"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light=#000000, Dark=#e6e8ef}"
+                                   HorizontalOptions="End"
+                                   VerticalOptions="Center" />
+                        </Grid>
+
+                        <BoxView HeightRequest="1" 
+                                 Color="{AppThemeBinding Light=#e0e0e0, Dark=#444444}"
+                                 Margin="24,0" />
+
+                        <!-- Expiry Date -->
+                        <Grid Padding="24,20" ColumnDefinitions="35*,65*">
+                            <Label Grid.Column="0"
+                                   Text="Expiry Date"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light=#666666, Dark=#a0a0a0}"
+                                   VerticalOptions="Center" />
+                            <Label Grid.Column="1"
+                                   Text="{Binding ExpiryDate}"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light=#000000, Dark=#e6e8ef}"
+                                   HorizontalOptions="End"
+                                   VerticalOptions="Center" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Verified Claims (if valid) -->
+                <Frame CornerRadius="12"
+                       Padding="16"
+                       HasShadow="True"
+                       IsVisible="{Binding IsVerified}">
+                    <Frame.BackgroundColor>
+                        <AppThemeBinding Light="White" Dark="#1c2230" />
+                    </Frame.BackgroundColor>
+                    
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Verified Claims"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light=#000000, Dark=#e6e8ef}"
+                               Margin="8,0,0,8" />
+
+                        <CollectionView ItemsSource="{Binding VerifiedClaims}">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="vm:VerifiedClaimItem">
+                                    <Grid Padding="8,12" ColumnDefinitions="*,Auto">
+                                        <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                            <Label Text="{Binding Name}"
+                                                   FontSize="14"
+                                                   FontAttributes="Bold"
+                                                   TextColor="{AppThemeBinding Light=#000000, Dark=#e6e8ef}" />
+                                            <Label Text="{Binding ClaimValue}"
+                                                   FontSize="13"
+                                                   TextColor="{AppThemeBinding Light=#666666, Dark=#a0a0a0}" />
+                                        </VerticalStackLayout>
+
+                                        <Label Grid.Column="1"
+                                               Text="&#xe5ca;"
+                                               FontFamily="MaterialSymbolsOutlined"
+                                               FontSize="20"
+                                               TextColor="#0b8458"
+                                               VerticalOptions="Center"
+                                               IsVisible="{Binding IsVerified}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </Frame>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Footer Button -->
+        <Button Grid.Row="2"
+                Text="Scan Another Credential"
+                Command="{Binding ScanAnotherCredentialCommand}"
+                BackgroundColor="#0b8458"
+                TextColor="White"
+                FontSize="16"
+                FontAttributes="Bold"
+                CornerRadius="12"
+                HeightRequest="48"
+                Margin="16,0,16,24" />
+
+    </Grid>
+</ContentPage>

@@ -1,0 +1,518 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CredVault.Mobile.Views.SettingsPage"
+             xmlns:vm="clr-namespace:CredVault.Mobile.ViewModels"
+             xmlns:models="clr-namespace:CredVault.Mobile.Models"
+             x:DataType="vm:SettingsViewModel"
+             Title="{Binding Title}"
+             BackgroundColor="{AppThemeBinding Light=#f5f5f5, Dark=#121212}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+
+            <!-- Language & Theme Section -->
+            <Frame CornerRadius="12" 
+                   Padding="16" 
+                   HasShadow="True"
+                   BackgroundColor="{AppThemeBinding Light=White, Dark=#1e1e1e}">
+                <VerticalStackLayout Spacing="20">
+                    <!-- Language -->
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
+                        <Frame Grid.Column="0"
+                               WidthRequest="48"
+                               HeightRequest="48"
+                               CornerRadius="24"
+                               Padding="0"
+                               HasShadow="False"
+                               BackgroundColor="#004aad"
+                               VerticalOptions="Start">
+                            <Label Text="&#xe8e2;"
+                                   FontFamily="MaterialSymbolsOutlined"
+                                   FontSize="24"
+                                   TextColor="White"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center" />
+                        </Frame>
+
+                        <VerticalStackLayout Grid.Column="1" Spacing="4">
+                            <Label Text="Language"
+                                   FontSize="16"
+                                   FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light=#000000, Dark=#ffffff}" />
+                            <Label Text="Select your preferred language"
+                                   FontSize="12"
+                                   TextColor="{AppThemeBinding Light=#666666, Dark=#aaaaaa}"
+                                   Margin="0,0,0,8" />
+                            <Picker ItemsSource="{Binding LanguageOptions}"
+                                    SelectedItem="{Binding SelectedLanguage}"
+                                    BackgroundColor="{AppThemeBinding Light=#f5f5f5, Dark=#2a2a2a}"
+                                    TextColor="{AppThemeBinding Light=#000000, Dark=#ffffff}"
+                                    SelectedIndexChanged="OnLanguageChanged" />
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <BoxView HeightRequest="1" 
+                             Color="{AppThemeBinding Light=#e0e0e0, Dark=#333333}" />
+
+                    <!-- Theme -->
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
+                        <Frame Grid.Column="0"
+                               WidthRequest="48"
+                               HeightRequest="48"
+                               CornerRadius="24"
+                               Padding="0"
+                               HasShadow="False"
+                               BackgroundColor="#004aad"
+                               VerticalOptions="Start">
+                            <Label Text="&#xe51c;"
+                                   FontFamily="MaterialSymbolsOutlined"
+                                   FontSize="24"
+                                   TextColor="White"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center" />
+                        </Frame>
+
+                        <VerticalStackLayout Grid.Column="1" Spacing="4">
+                            <Label Text="Appearance"
+                                   FontSize="16"
+                                   FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light=#000000, Dark=#ffffff}" />
+                            <Label Text="Customize your app's look"
+                                   FontSize="12"
+                                   TextColor="{AppThemeBinding Light=#666666, Dark=#aaaaaa}"
+                                   Margin="0,0,0,8" />
+                            <Picker ItemsSource="{Binding ThemeOptions}"
+                                    SelectedItem="{Binding SelectedTheme}"
+                                    BackgroundColor="{AppThemeBinding Light=#f5f5f5, Dark=#2a2a2a}"
+                                    TextColor="{AppThemeBinding Light=#000000, Dark=#ffffff}"
+                                    SelectedIndexChanged="OnThemeChanged" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- App Mode Section -->
+            <Frame CornerRadius="12"
+                   Padding="16"
+                   HasShadow="True"
+                   BackgroundColor="{AppThemeBinding Light=White, Dark=#1e1e1e}">
+                <VerticalStackLayout Spacing="16">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
+                        <Frame Grid.Column="0"
+                               WidthRequest="48"
+                               HeightRequest="48"
+                               CornerRadius="24"
+                               Padding="0"
+                               HasShadow="False"
+                               BackgroundColor="#8b5cf6"
+                               VerticalOptions="Start">
+                            <Label Text="&#xe8b8;"
+                                   FontFamily="MaterialSymbolsOutlined"
+                                   FontSize="24"
+                                   TextColor="White"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center" />
+                        </Frame>
+
+                        <VerticalStackLayout Grid.Column="1" Spacing="4">
+                            <Label Text="App Mode"
+                                   FontSize="16"
+                                   FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light=#000000, Dark=#ffffff}" />
+                            <Label Text="Select your primary role"
+                                   FontSize="12"
+                                   TextColor="{AppThemeBinding Light=#666666, Dark=#aaaaaa}" />
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <!-- Mode Cards -->
+                    <CollectionView ItemsSource="{Binding AppModeOptions}"
+                                   SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:AppModeInfo">
+                                <Frame HasShadow="False"
+                                       Padding="12"
+                                       Margin="0,4"
+                                       CornerRadius="8"
+                                       BackgroundColor="{AppThemeBinding Light=#f5f5f5, Dark=#2a2a2a}"
+                                       BorderColor="{Binding PrimaryColor}">
+                                    <Frame.Triggers>
+                                        <DataTrigger TargetType="Frame"
+                                                    Binding="{Binding Mode}"
+                                                    Value="{Binding Source={RelativeSource AncestorType={x:Type vm:SettingsViewModel}}, Path=SelectedAppMode}">
+                                            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=#e8f4ff, Dark=#1a2a3a}" />
+                                            <Setter Property="BorderColor" Value="{Binding PrimaryColor}" />
+                                        </DataTrigger>
+                                    </Frame.Triggers>
+                                    <Frame.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SettingsViewModel}}, Path=ChangeAppModeCommand}"
+                                                             CommandParameter="{Binding Mode}" />
+                                    </Frame.GestureRecognizers>
+                                    
+                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                        <Frame Grid.Column="0"
+                                               WidthRequest="40"
+                                               HeightRequest="40"
+                                               CornerRadius="20"
+                                               Padding="0"
+                                               HasShadow="False"
+                                               BackgroundColor="{Binding PrimaryColor, StringFormat='#{0}10'}">
+                                            <Label Text="{Binding Icon}"
+                                                   FontFamily="MaterialSymbolsOutlined"
+                                                   FontSize="20"
+                                                   TextColor="{Binding PrimaryColor}"
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="Center" />
+                                        </Frame>
+
+                                        <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                            <Label Text="{Binding Name}"
+                                                   FontSize="14"
+                                                   FontAttributes="Bold"
+                                                   TextColor="{AppThemeBinding Light=#000000, Dark=#ffffff}" />
+                                            <Label Text="{Binding Description}"
+                                                   FontSize="12"
+                                                   TextColor="{AppThemeBinding Light=#666666, Dark=#aaaaaa}" />
+                                        </VerticalStackLayout>
+                                    </Grid>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Notifications Section -->
+            <Frame CornerRadius="12" 
+                   Padding="16" 
+                   HasShadow="True"
+                   BackgroundColor="{AppThemeBinding Light=White, Dark=#1e1e1e}">
+                <VerticalStackLayout Spacing="20">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
+                        <Frame Grid.Column="0"
+                               WidthRequest="48"
+                               HeightRequest="48"
+                               CornerRadius="24"
+                               Padding="0"
+                               HasShadow="False"
+                               BackgroundColor="#10b981"
+                               VerticalOptions="Start">
+                            <Label Text="&#xe7f4;"
+                                   FontFamily="MaterialSymbolsOutlined"
+                                   FontSize="24"
+                                   TextColor="White"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center" />
+                        </Frame>
+
+                        <VerticalStackLayout Grid.Column="1" Spacing="8">
+                            <Label Text="Notifications"
+                                   FontSize="16"
+                                   FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light=#000000, Dark=#ffffff}" />
+                            <Label Text="Manage notification preferences"
+                                   FontSize="12"
+                                   TextColor="{AppThemeBinding Light=#666666, Dark=#aaaaaa}" />
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <BoxView HeightRequest="1" 
+                             Color="{AppThemeBinding Light=#e0e0e0, Dark=#333333}" />
+
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                        <VerticalStackLayout Grid.Column="0">
+                            <Label Text="Enable Notifications"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light=#000000, Dark=#ffffff}" />
+                            <Label Text="Receive app notifications"
+                                   FontSize="11"
+                                   TextColor="{AppThemeBinding Light=#666666, Dark=#aaaaaa}" />
+                        </VerticalStackLayout>
+                        <Switch Grid.Column="1"
+                                IsToggled="{Binding NotificationsEnabled}"
+                                OnColor="#004aad"
+                                VerticalOptions="Center"
+                                Toggled="OnNotificationsToggled" />
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                        <VerticalStackLayout Grid.Column="0">
+                            <Label Text="Credential Expiry Alerts"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light=#000000, Dark=#ffffff}" />
+                            <Label Text="Get notified before credentials expire"
+                                   FontSize="11"
+                                   TextColor="{AppThemeBinding Light=#666666, Dark=#aaaaaa}" />
+                        </VerticalStackLayout>
+                        <Switch Grid.Column="1"
+                                IsToggled="{Binding CredentialExpiryAlerts}"
+                                OnColor="#004aad"
+                                VerticalOptions="Center"
+                                IsEnabled="{Binding NotificationsEnabled}" />
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                        <VerticalStackLayout Grid.Column="0">
+                            <Label Text="Security Alerts"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light=#000000, Dark=#ffffff}" />
+                            <Label Text="Important security notifications"
+                                   FontSize="11"
+                                   TextColor="{AppThemeBinding Light=#666666, Dark=#aaaaaa}" />
+                        </VerticalStackLayout>
+                        <Switch Grid.Column="1"
+                                IsToggled="{Binding SecurityAlerts}"
+                                OnColor="#004aad"
+                                VerticalOptions="Center"
+                                IsEnabled="{Binding NotificationsEnabled}" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Security Section -->
+            <Frame CornerRadius="12" 
+                   Padding="16" 
+                   HasShadow="True"
+                   BackgroundColor="{AppThemeBinding Light=White, Dark=#1e1e1e}">
+                <VerticalStackLayout Spacing="20">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
+                        <Frame Grid.Column="0"
+                               WidthRequest="48"
+                               HeightRequest="48"
+                               CornerRadius="24"
+                               Padding="0"
+                               HasShadow="False"
+                               BackgroundColor="#ef4444"
+                               VerticalOptions="Start">
+                            <Label Text="&#xe32a;"
+                                   FontFamily="MaterialSymbolsOutlined"
+                                   FontSize="24"
+                                   TextColor="White"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center" />
+                        </Frame>
+
+                        <VerticalStackLayout Grid.Column="1" Spacing="8">
+                            <Label Text="Security"
+                                   FontSize="16"
+                                   FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light=#000000, Dark=#ffffff}" />
+                            <Label Text="Protect your credentials"
+                                   FontSize="12"
+                                   TextColor="{AppThemeBinding Light=#666666, Dark=#aaaaaa}" />
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <BoxView HeightRequest="1" 
+                             Color="{AppThemeBinding Light=#e0e0e0, Dark=#333333}" />
+
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                        <VerticalStackLayout Grid.Column="0">
+                            <Label Text="Biometric Authentication"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light=#000000, Dark=#ffffff}" />
+                            <Label Text="Use fingerprint or face ID"
+                                   FontSize="11"
+                                   TextColor="{AppThemeBinding Light=#666666, Dark=#aaaaaa}" />
+                        </VerticalStackLayout>
+                        <Switch Grid.Column="1"
+                                IsToggled="{Binding BiometricEnabled}"
+                                OnColor="#004aad"
+                                VerticalOptions="Center"
+                                Toggled="OnBiometricToggled" />
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                        <VerticalStackLayout Grid.Column="0">
+                            <Label Text="PIN Lock"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light=#000000, Dark=#ffffff}" />
+                            <Label Text="Require PIN to access app"
+                                   FontSize="11"
+                                   TextColor="{AppThemeBinding Light=#666666, Dark=#aaaaaa}" />
+                        </VerticalStackLayout>
+                        <Switch Grid.Column="1"
+                                IsToggled="{Binding PinEnabled}"
+                                OnColor="#004aad"
+                                VerticalOptions="Center"
+                                Toggled="OnPinToggled" />
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                        <VerticalStackLayout Grid.Column="0">
+                            <Label Text="Auto-Lock"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light=#000000, Dark=#ffffff}" />
+                            <Label Text="Lock app after inactivity"
+                                   FontSize="11"
+                                   TextColor="{AppThemeBinding Light=#666666, Dark=#aaaaaa}" />
+                        </VerticalStackLayout>
+                        <Switch Grid.Column="1"
+                                IsToggled="{Binding AutoLockEnabled}"
+                                OnColor="#004aad"
+                                VerticalOptions="Center"
+                                Toggled="OnAutoLockToggled" />
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12" IsVisible="{Binding AutoLockEnabled}">
+                        <Label Grid.Column="0"
+                               Text="Auto-Lock After"
+                               FontSize="14"
+                               TextColor="{AppThemeBinding Light=#000000, Dark=#ffffff}"
+                               VerticalOptions="Center" />
+                        <Picker Grid.Column="1"
+                                ItemsSource="{Binding AutoLockOptions}"
+                                SelectedItem="{Binding AutoLockMinutes}"
+                                BackgroundColor="{AppThemeBinding Light=#f5f5f5, Dark=#2a2a2a}"
+                                TextColor="{AppThemeBinding Light=#000000, Dark=#ffffff}"
+                                WidthRequest="100" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Data & Storage Section -->
+            <Frame CornerRadius="12" 
+                   Padding="16" 
+                   HasShadow="True"
+                   BackgroundColor="{AppThemeBinding Light=White, Dark=#1e1e1e}">
+                <VerticalStackLayout Spacing="16">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
+                        <Frame Grid.Column="0"
+                               WidthRequest="48"
+                               HeightRequest="48"
+                               CornerRadius="24"
+                               Padding="0"
+                               HasShadow="False"
+                               BackgroundColor="#8b5cf6"
+                               VerticalOptions="Start">
+                            <Label Text="&#xe1db;"
+                                   FontFamily="MaterialSymbolsOutlined"
+                                   FontSize="24"
+                                   TextColor="White"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center" />
+                        </Frame>
+
+                        <VerticalStackLayout Grid.Column="1" Spacing="8">
+                            <Label Text="Data &amp; Storage"
+                                   FontSize="16"
+                                   FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light=#000000, Dark=#ffffff}" />
+                            <Label Text="Manage app data"
+                                   FontSize="12"
+                                   TextColor="{AppThemeBinding Light=#666666, Dark=#aaaaaa}" />
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <BoxView HeightRequest="1" 
+                             Color="{AppThemeBinding Light=#e0e0e0, Dark=#333333}" />
+
+                    <Button Text="Clear Cache"
+                            Command="{Binding ClearCacheCommand}"
+                            BackgroundColor="Transparent"
+                            TextColor="#004aad"
+                            BorderColor="#004aad"
+                            BorderWidth="1"
+                            CornerRadius="8"
+                            FontSize="14" />
+
+                    <Button Text="Reset Settings"
+                            Command="{Binding ResetSettingsCommand}"
+                            BackgroundColor="Transparent"
+                            TextColor="#ef4444"
+                            BorderColor="#ef4444"
+                            BorderWidth="1"
+                            CornerRadius="8"
+                            FontSize="14" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- About Section -->
+            <Frame CornerRadius="12" 
+                   Padding="16" 
+                   HasShadow="True"
+                   BackgroundColor="{AppThemeBinding Light=White, Dark=#1e1e1e}">
+                <VerticalStackLayout Spacing="16">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
+                        <Frame Grid.Column="0"
+                               WidthRequest="48"
+                               HeightRequest="48"
+                               CornerRadius="24"
+                               Padding="0"
+                               HasShadow="False"
+                               BackgroundColor="#06b6d4"
+                               VerticalOptions="Start">
+                            <Label Text="&#xe88e;"
+                                   FontFamily="MaterialSymbolsOutlined"
+                                   FontSize="24"
+                                   TextColor="White"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center" />
+                        </Frame>
+
+                        <VerticalStackLayout Grid.Column="1" Spacing="8">
+                            <Label Text="About"
+                                   FontSize="16"
+                                   FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light=#000000, Dark=#ffffff}" />
+                            <Label Text="App information and legal"
+                                   FontSize="12"
+                                   TextColor="{AppThemeBinding Light=#666666, Dark=#aaaaaa}" />
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <BoxView HeightRequest="1" 
+                             Color="{AppThemeBinding Light=#e0e0e0, Dark=#333333}" />
+
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                        <Label Grid.Column="0"
+                               Text="App Version"
+                               FontSize="14"
+                               TextColor="{AppThemeBinding Light=#000000, Dark=#ffffff}"
+                               VerticalOptions="Center" />
+                        <Label Grid.Column="1"
+                               Text="{Binding AppVersion}"
+                               FontSize="14"
+                               TextColor="{AppThemeBinding Light=#666666, Dark=#aaaaaa}"
+                               VerticalOptions="Center" />
+                    </Grid>
+
+                    <Label Text="Terms of Service"
+                           FontSize="14"
+                           TextColor="#004aad"
+                           TextDecorations="Underline">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnTermsTapped" />
+                        </Label.GestureRecognizers>
+                    </Label>
+
+                    <Label Text="Privacy Policy"
+                           FontSize="14"
+                           TextColor="#004aad"
+                           TextDecorations="Underline">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnPrivacyTapped" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Logout Section -->
+            <Frame CornerRadius="12" 
+                   Padding="16" 
+                   HasShadow="True"
+                   BackgroundColor="{AppThemeBinding Light=White, Dark=#1e1e1e}">
+                <Button Text="Logout"
+                        Command="{Binding LogoutCommand}"
+                        BackgroundColor="#ef4444"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        CornerRadius="8"
+                        HeightRequest="50"
+                        HorizontalOptions="Fill" />
+            </Frame>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

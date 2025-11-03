@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:CredVault.Mobile.ViewModels"
+             x:Class="CredVault.Mobile.Views.BackupPage"
+             x:DataType="vm:BackupViewModel"
+             Title="{Binding Title}"
+             Shell.NavBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,*">
+        
+        <!-- Top App Bar -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Padding="16" BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}">
+            <Button Grid.Column="0"
+                    Text="&#xE5C4;"
+                    FontFamily="MaterialSymbols"
+                    FontSize="24"
+                    BackgroundColor="Transparent"
+                    TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"
+                    Command="{Binding GoBackCommand}"
+                    WidthRequest="48"
+                    HeightRequest="48"/>
+            
+            <Label Grid.Column="1"
+                   Text="{Binding Title}"
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   HorizontalTextAlignment="Center"
+                   VerticalTextAlignment="Center"
+                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+            
+            <BoxView Grid.Column="2" WidthRequest="48" HeightRequest="48" Color="Transparent"/>
+        </Grid>
+
+        <!-- Main Content -->
+        <ScrollView Grid.Row="1" Padding="16">
+            <VerticalStackLayout Spacing="16">
+
+                <!-- Loading Indicator -->
+                <ActivityIndicator IsRunning="{Binding IsLoading}"
+                                 IsVisible="{Binding IsLoading}"
+                                 Color="{StaticResource Primary}"
+                                 VerticalOptions="Center"
+                                 HeightRequest="48"/>
+
+                <!-- Export Backup Card -->
+                <Border StrokeThickness="0"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark=#172436}"
+                        Shadow="{AppThemeBinding Light={StaticResource DefaultShadow}}"
+                        IsVisible="{Binding IsLoading, Converter={StaticResource InvertedBoolConverter}}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="12"/>
+                    </Border.StrokeShape>
+                    
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ExportBackupCommand}"/>
+                    </Border.GestureRecognizers>
+
+                    <Grid ColumnDefinitions="Auto,*,Auto" Padding="16" ColumnSpacing="16">
+                        <!-- Icon -->
+                        <Border Grid.Column="0"
+                                StrokeThickness="0"
+                                WidthRequest="48"
+                                HeightRequest="48"
+                                BackgroundColor="#1A004bad">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="12"/>
+                            </Border.StrokeShape>
+                            <Label Text="&#xf861;"
+                                   FontFamily="MaterialSymbols"
+                                   FontSize="28"
+                                   TextColor="{StaticResource Primary}"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"/>
+                        </Border>
+
+                        <!-- Text Content -->
+                        <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
+                            <Label Text="Export Backup Key"
+                                   FontSize="16"
+                                   FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+                            <Label Text="Generate a secure QR code to save a backup of your wallet."
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
+                        </VerticalStackLayout>
+
+                        <!-- Chevron -->
+                        <Label Grid.Column="2"
+                               Text="&#xE5CC;"
+                               FontFamily="MaterialSymbols"
+                               FontSize="24"
+                               VerticalOptions="Center"
+                               TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
+                    </Grid>
+                </Border>
+
+                <!-- Import from Device Card -->
+                <Border StrokeThickness="0"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark=#172436}"
+                        Shadow="{AppThemeBinding Light={StaticResource DefaultShadow}}"
+                        IsVisible="{Binding IsLoading, Converter={StaticResource InvertedBoolConverter}}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="12"/>
+                    </Border.StrokeShape>
+                    
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ImportBackupCommand}"/>
+                    </Border.GestureRecognizers>
+
+                    <Grid ColumnDefinitions="Auto,*,Auto" Padding="16" ColumnSpacing="16">
+                        <!-- Icon -->
+                        <Border Grid.Column="0"
+                                StrokeThickness="0"
+                                WidthRequest="48"
+                                HeightRequest="48"
+                                BackgroundColor="#1A004bad">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="12"/>
+                            </Border.StrokeShape>
+                            <Label Text="&#xf8b3;"
+                                   FontFamily="MaterialSymbols"
+                                   FontSize="28"
+                                   TextColor="{StaticResource Primary}"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"/>
+                        </Border>
+
+                        <!-- Text Content -->
+                        <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
+                            <Label Text="Import from Device"
+                                   FontSize="16"
+                                   FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+                            <Label Text="Scan a backup key from your old device to restore your credentials."
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
+                        </VerticalStackLayout>
+
+                        <!-- Chevron -->
+                        <Label Grid.Column="2"
+                               Text="&#xE5CC;"
+                               FontFamily="MaterialSymbols"
+                               FontSize="24"
+                               VerticalOptions="Center"
+                               TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
+                    </Grid>
+                </Border>
+
+                <!-- Last Backup Info -->
+                <Border StrokeThickness="1"
+                        Stroke="{AppThemeBinding Light=#e0e0e0, Dark=#424242}"
+                        BackgroundColor="Transparent"
+                        Padding="16"
+                        IsVisible="{Binding LastBackupDate, Converter={StaticResource IsNotNullConverter}}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="12"/>
+                    </Border.StrokeShape>
+                    
+                    <HorizontalStackLayout Spacing="12">
+                        <Label Text="&#xE86C;"
+                               FontFamily="MaterialSymbols"
+                               FontSize="24"
+                               TextColor="#4caf50"
+                               VerticalOptions="Center"/>
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Last Backup"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
+                            <Label Text="{Binding LastBackupDate, StringFormat='{0:MMM dd, yyyy h:mm tt}'}"
+                                   FontSize="14"
+                                   FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+                        </VerticalStackLayout>
+                    </HorizontalStackLayout>
+                </Border>
+
+                <!-- Informational Text -->
+                <Label Text="Your backups are securely encrypted and are essential for recovering your wallet on a new device. Keep your backup key safe."
+                       FontSize="14"
+                       TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"
+                       HorizontalTextAlignment="Center"
+                       Margin="0,32,0,0"
+                       IsVisible="{Binding IsLoading, Converter={StaticResource InvertedBoolConverter}}"/>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Export Modal Overlay -->
+        <Grid Grid.RowSpan="2"
+              BackgroundColor="#99000000"
+              IsVisible="{Binding ShowExportModal}"
+              Padding="16">
+            <Grid.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding CloseExportModalCommand}"/>
+            </Grid.GestureRecognizers>
+
+            <!-- Modal Content -->
+            <Border StrokeThickness="0"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark=#172436}"
+                    MaximumWidthRequest="400"
+                    VerticalOptions="Center"
+                    HorizontalOptions="Center"
+                    Padding="24"
+                    Shadow="{AppThemeBinding Light={StaticResource DefaultShadow}}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="16"/>
+                </Border.StrokeShape>
+
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer/>
+                </Border.GestureRecognizers>
+
+                <VerticalStackLayout Spacing="24">
+                    <!-- Header -->
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Your Backup Key"
+                               FontSize="20"
+                               FontAttributes="Bold"
+                               HorizontalTextAlignment="Center"
+                               TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+                        <Label Text="Scan this QR code with your new device to transfer your credentials. Keep it safe and do not share it."
+                               FontSize="14"
+                               HorizontalTextAlignment="Center"
+                               TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
+                    </VerticalStackLayout>
+
+                    <!-- QR Code Placeholder -->
+                    <Border StrokeThickness="0"
+                            WidthRequest="280"
+                            HeightRequest="280"
+                            BackgroundColor="{StaticResource White}"
+                            HorizontalOptions="Center">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="12"/>
+                        </Border.StrokeShape>
+                        
+                        <VerticalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
+                            <Label Text="&#xf861;"
+                                   FontFamily="MaterialSymbols"
+                                   FontSize="120"
+                                   TextColor="{AppThemeBinding Light=#e0e0e0, Dark={StaticResource Gray600}}"
+                                   HorizontalOptions="Center"/>
+                            <Label Text="QR Code Preview"
+                                   FontSize="12"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"
+                                   HorizontalTextAlignment="Center"/>
+                            <Label Text="(ZXing.Net.Maui QR generation not implemented)"
+                                   FontSize="10"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"
+                                   HorizontalTextAlignment="Center"/>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Backup Key Preview -->
+                    <Border StrokeThickness="1"
+                            Stroke="{AppThemeBinding Light=#e0e0e0, Dark=#424242}"
+                            BackgroundColor="{AppThemeBinding Light=#f5f5f5, Dark=#20334b}"
+                            Padding="12">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="8"/>
+                        </Border.StrokeShape>
+                        <Label Text="{Binding BackupKeyPreview}"
+                               FontSize="12"
+                               FontFamily="Courier"
+                               HorizontalTextAlignment="Center"
+                               LineBreakMode="CharacterWrap"
+                               TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+                    </Border>
+
+                    <!-- Done Button -->
+                    <Button Text="Done"
+                            FontSize="16"
+                            FontAttributes="Bold"
+                            HeightRequest="48"
+                            BackgroundColor="{StaticResource Primary}"
+                            TextColor="{StaticResource White}"
+                            CornerRadius="24"
+                            Command="{Binding CloseExportModalCommand}"/>
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+    </Grid>
+</ContentPage>

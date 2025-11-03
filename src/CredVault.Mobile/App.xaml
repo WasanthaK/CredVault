@@ -1,0 +1,51 @@
+﻿<?xml version = "1.0" encoding = "UTF-8" ?>
+<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:CredVault.Mobile"
+             xmlns:converters="clr-namespace:CredVault.Mobile.Converters"
+             x:Class="CredVault.Mobile.App">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            
+            <!-- Gray Color Scale -->
+            <Color x:Key="Gray200">#e5e7eb</Color>
+            <Color x:Key="Gray300">#d1d5db</Color>
+            <Color x:Key="Gray400">#9ca3af</Color>
+            <Color x:Key="Gray500">#6b7280</Color>
+            <Color x:Key="Gray600">#4b5563</Color>
+            <Color x:Key="Gray700">#374151</Color>
+            <Color x:Key="Gray900">#111827</Color>
+            
+            <!-- Value Converters -->
+            <converters:StatusColorConverter x:Key="StatusColorConverter" />
+            <converters:IsNotNullConverter x:Key="IsNotNullConverter" />
+            <converters:BoolToColorConverter x:Key="BoolToColorConverter" />
+            <converters:CountToBoolConverter x:Key="CountToBoolConverter" />
+            <converters:PercentToDecimalConverter x:Key="PercentToDecimalConverter" />
+            <converters:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+            <converters:MaterialIconConverter x:Key="MaterialIconConverter" />
+            <converters:ConditionalColorConverter x:Key="ConditionalColorConverter" />
+            <converters:ConditionalTextConverter x:Key="ConditionalTextConverter" />
+            <converters:ConditionalIconConverter x:Key="ConditionalIconConverter" />
+            <converters:StringNotEmptyConverter x:Key="StringNotEmptyConverter" />
+            <converters:StringIsEmptyConverter x:Key="StringIsEmptyConverter" />
+            <converters:PinDotColorConverter x:Key="PinDotColorConverter" />
+            
+            <!-- PIN Button Style -->
+            <Style x:Key="PinButton" TargetType="Button">
+                <Setter Property="FontSize" Value="24" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=#e8e8e8, Dark=#2a2a2a}" />
+                <Setter Property="TextColor" Value="{AppThemeBinding Light=#000000, Dark=#ffffff}" />
+                <Setter Property="CornerRadius" Value="40" />
+                <Setter Property="WidthRequest" Value="80" />
+                <Setter Property="HeightRequest" Value="80" />
+                <Setter Property="Padding" Value="0" />
+            </Style>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

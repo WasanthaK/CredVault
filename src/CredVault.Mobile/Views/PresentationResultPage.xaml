@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:CredVault.Mobile.ViewModels"
+             x:Class="CredVault.Mobile.Views.PresentationResultPage"
+             x:DataType="vm:PresentationViewModel"
+             Title="Presentation Complete"
+             Shell.NavBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+        
+        <!-- Top App Bar -->
+        <Grid Grid.Row="0" Padding="16" BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}">
+            <Label Text="Presentation Complete"
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   HorizontalTextAlignment="Center"
+                   VerticalTextAlignment="Center"
+                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+        </Grid>
+
+        <!-- Main Content -->
+        <VerticalStackLayout Grid.Row="1" 
+                           Spacing="24"
+                           VerticalOptions="Center"
+                           Padding="32">
+            
+            <!-- Success Icon -->
+            <Border StrokeThickness="0"
+                    WidthRequest="96"
+                    HeightRequest="96"
+                    BackgroundColor="#4caf50"
+                    HorizontalOptions="Center">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="48"/>
+                </Border.StrokeShape>
+                <Label Text="&#xE86C;"
+                       FontFamily="MaterialSymbols"
+                       FontSize="56"
+                       TextColor="{StaticResource White}"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"/>
+            </Border>
+
+            <!-- Success Headline -->
+            <Label Text="Credentials Shared"
+                   FontSize="32"
+                   FontAttributes="Bold"
+                   HorizontalTextAlignment="Center"
+                   TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+
+            <!-- Success Message -->
+            <Label Text="{Binding PresentationMessage}"
+                   FontSize="16"
+                   HorizontalTextAlignment="Center"
+                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}"
+                   MaximumWidthRequest="300"/>
+
+            <!-- Verification Info Card -->
+            <Border StrokeThickness="0"
+                    BackgroundColor="{AppThemeBinding Light=#e8f5e9, Dark=#1b5e20}"
+                    Padding="16"
+                    Margin="0,16,0,0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="12"/>
+                </Border.StrokeShape>
+                
+                <HorizontalStackLayout Spacing="12">
+                    <Label Text="&#xE86C;"
+                           FontFamily="MaterialSymbols"
+                           FontSize="24"
+                           TextColor="#4caf50"
+                           VerticalOptions="Center"/>
+                    <VerticalStackLayout Spacing="4" HorizontalOptions="FillAndExpand">
+                        <Label Text="Verified and Secure"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+                        <Label Text="Your credentials were shared using secure cryptographic protocols."
+                               FontSize="12"
+                               TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
+                    </VerticalStackLayout>
+                </HorizontalStackLayout>
+            </Border>
+
+            <!-- Verifier Info -->
+            <VerticalStackLayout Spacing="8" Margin="0,8,0,0">
+                <Label Text="Shared with:"
+                       FontSize="14"
+                       HorizontalTextAlignment="Center"
+                       TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
+                <Label Text="{Binding VerifierName}"
+                       FontSize="18"
+                       FontAttributes="Bold"
+                       HorizontalTextAlignment="Center"
+                       TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+
+        <!-- Footer Button -->
+        <Border Grid.Row="2" 
+                Padding="16"
+                StrokeThickness="1,0,0,0"
+                Stroke="{AppThemeBinding Light=#e0e0e0, Dark=#424242}"
+                BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}">
+            <Button Text="Back to Wallet"
+                    FontSize="16"
+                    FontAttributes="Bold"
+                    HeightRequest="48"
+                    BackgroundColor="{StaticResource Primary}"
+                    TextColor="{StaticResource White}"
+                    CornerRadius="12"
+                    Command="{Binding BackToWalletCommand}"/>
+        </Border>
+    </Grid>
+</ContentPage>

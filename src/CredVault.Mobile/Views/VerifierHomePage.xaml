@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CredVault.Mobile.Views.VerifierHomePage"
+             xmlns:vm="clr-namespace:CredVault.Mobile.ViewModels"
+             x:DataType="vm:VerifierViewModel"
+             Title="{Binding Title}"
+             BackgroundColor="{AppThemeBinding Light=#f5f5f5, Dark=#121212}">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+        
+        <!-- Header -->
+        <Grid Grid.Row="0" Padding="16" ColumnDefinitions="Auto,*,Auto">
+            <Frame Grid.Column="0"
+                   WidthRequest="48"
+                   HeightRequest="48"
+                   CornerRadius="24"
+                   Padding="0"
+                   HasShadow="False"
+                   BackgroundColor="Transparent">
+                <Label Text="&#xe8e3;"
+                       FontFamily="MaterialSymbolsOutlined"
+                       FontSize="30"
+                       TextColor="{AppThemeBinding Light=#000000, Dark=#ffffff}"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center" />
+            </Frame>
+
+            <Label Grid.Column="1"
+                   Text="GovStack Wallet"
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   TextColor="{AppThemeBinding Light=#000000, Dark=#ffffff}"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center" />
+
+            <Button Grid.Column="2"
+                    Text="&#xe8b8;"
+                    FontFamily="MaterialSymbolsOutlined"
+                    FontSize="30"
+                    BackgroundColor="Transparent"
+                    TextColor="{AppThemeBinding Light=#000000, Dark=#ffffff}"
+                    WidthRequest="48"
+                    HeightRequest="48"
+                    Clicked="OnSettingsClicked" />
+        </Grid>
+
+        <!-- Main Content -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="16" Spacing="32">
+                
+                <!-- Headline and Description -->
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Verifier Mode"
+                           FontSize="32"
+                           FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light=#000000, Dark=#ffffff}"
+                           HorizontalOptions="Center" />
+                    
+                    <Label Text="Ready to verify a digital credential."
+                           FontSize="16"
+                           TextColor="{AppThemeBinding Light=#666666, Dark=#aaaaaa}"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+
+                <!-- Main Card -->
+                <Frame CornerRadius="12"
+                       Padding="24"
+                       HasShadow="True"
+                       BackgroundColor="{AppThemeBinding Light=White, Dark=#1e1e1e}"
+                       HorizontalOptions="Center"
+                       WidthRequest="320">
+                    <VerticalStackLayout Spacing="24">
+                        
+                        <!-- Icon -->
+                        <Frame WidthRequest="160"
+                               HeightRequest="160"
+                               CornerRadius="12"
+                               Padding="0"
+                               HasShadow="False"
+                               BackgroundColor="#0b845820"
+                               HorizontalOptions="Center">
+                            <Label Text="&#xe8b6;"
+                                   FontFamily="MaterialSymbolsOutlined"
+                                   FontSize="96"
+                                   TextColor="#0b8458"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center" />
+                        </Frame>
+
+                        <!-- Scan Button -->
+                        <Button Text="Scan Credential QR"
+                                Command="{Binding ScanCredentialQrCommand}"
+                                BackgroundColor="#0b8458"
+                                TextColor="White"
+                                FontSize="16"
+                                FontAttributes="Bold"
+                                CornerRadius="12"
+                                HeightRequest="48">
+                            <Button.ImageSource>
+                                <FontImageSource FontFamily="MaterialSymbolsOutlined"
+                                               Glyph="&#xe439;"
+                                               Color="White"
+                                               Size="20" />
+                            </Button.ImageSource>
+                        </Button>
+
+                        <!-- Manual Request Button -->
+                        <Button Text="Create Manual Request"
+                                Command="{Binding CreateManualRequestCommand}"
+                                BackgroundColor="Transparent"
+                                TextColor="#0b8458"
+                                BorderColor="#0b8458"
+                                BorderWidth="2"
+                                FontSize="16"
+                                FontAttributes="Bold"
+                                CornerRadius="12"
+                                HeightRequest="48" />
+                    </VerticalStackLayout>
+                </Frame>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Footer Help Text -->
+        <VerticalStackLayout Grid.Row="2" Padding="16,8,16,24" Spacing="4">
+            <Label Text="Position the QR code inside the frame to scan."
+                   FontSize="14"
+                   TextColor="{AppThemeBinding Light=#666666, Dark=#888888}"
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center" />
+            
+            <Label Text="How to verify?"
+                   FontSize="14"
+                   FontAttributes="Bold"
+                   TextColor="#0b8458"
+                   HorizontalOptions="Center"
+                   TextDecorations="Underline">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnHelpTapped" />
+                </Label.GestureRecognizers>
+            </Label>
+        </VerticalStackLayout>
+
+    </Grid>
+</ContentPage>

@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:CredVault.Mobile.ViewModels"
+             xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.Maui.Controls"
+             x:Class="CredVault.Mobile.Views.QrScannerPage"
+             x:DataType="vm:QrScannerViewModel"
+             Title="{Binding Title}"
+             Shell.NavBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+        
+        <!-- Top App Bar -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Padding="16" BackgroundColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray900}}">
+            <Button Grid.Column="0"
+                    Text="&#xE5C4;"
+                    FontFamily="MaterialSymbols"
+                    FontSize="24"
+                    BackgroundColor="Transparent"
+                    TextColor="{StaticResource White}"
+                    Command="{Binding CancelScanCommand}"
+                    WidthRequest="48"
+                    HeightRequest="48"/>
+            
+            <Label Grid.Column="1"
+                   Text="{Binding Title}"
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   HorizontalTextAlignment="Center"
+                   VerticalTextAlignment="Center"
+                   TextColor="{StaticResource White}"/>
+            
+            <Button Grid.Column="2"
+                    Text="&#xE8B8;"
+                    FontFamily="MaterialSymbols"
+                    FontSize="24"
+                    BackgroundColor="Transparent"
+                    TextColor="{StaticResource White}"
+                    Command="{Binding ToggleTorchCommand}"
+                    WidthRequest="48"
+                    HeightRequest="48"
+                    IsVisible="{OnPlatform Android=True, iOS=True, Default=False}"/>
+        </Grid>
+
+        <!-- Camera View with ZXing Scanner -->
+        <Grid Grid.Row="1">
+            <!-- ZXing Camera View -->
+            <zxing:CameraBarcodeReaderView x:Name="CameraView"
+                                          IsDetecting="{Binding IsScanning}"
+                                          IsTorchOn="{Binding IsTorchOn}"
+                                          BarcodesDetected="CameraView_BarcodesDetected"
+                                          HorizontalOptions="Fill"
+                                          VerticalOptions="Fill" />
+
+            <!-- Scanning Frame Overlay -->
+            <Grid HorizontalOptions="Center" VerticalOptions="Center"
+                  WidthRequest="280"
+                  HeightRequest="280">
+                
+                <!-- Semi-transparent background with cutout -->
+                <Border StrokeThickness="3"
+                        Stroke="{StaticResource Primary}"
+                        StrokeDashArray="10,5"
+                        BackgroundColor="Transparent">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="20"/>
+                    </Border.StrokeShape>
+                </Border>
+
+                <!-- Corner markers -->
+                <Grid>
+                    <!-- Top-left corner -->
+                    <BoxView Color="{StaticResource Primary}"
+                            WidthRequest="40"
+                            HeightRequest="4"
+                            HorizontalOptions="Start"
+                            VerticalOptions="Start"/>
+                    <BoxView Color="{StaticResource Primary}"
+                            WidthRequest="4"
+                            HeightRequest="40"
+                            HorizontalOptions="Start"
+                            VerticalOptions="Start"/>
+
+                    <!-- Top-right corner -->
+                    <BoxView Color="{StaticResource Primary}"
+                            WidthRequest="40"
+                            HeightRequest="4"
+                            HorizontalOptions="End"
+                            VerticalOptions="Start"/>
+                    <BoxView Color="{StaticResource Primary}"
+                            WidthRequest="4"
+                            HeightRequest="40"
+                            HorizontalOptions="End"
+                            VerticalOptions="Start"/>
+
+                    <!-- Bottom-left corner -->
+                    <BoxView Color="{StaticResource Primary}"
+                            WidthRequest="40"
+                            HeightRequest="4"
+                            HorizontalOptions="Start"
+                            VerticalOptions="End"/>
+                    <BoxView Color="{StaticResource Primary}"
+                            WidthRequest="4"
+                            HeightRequest="40"
+                            HorizontalOptions="Start"
+                            VerticalOptions="End"/>
+
+                    <!-- Bottom-right corner -->
+                    <BoxView Color="{StaticResource Primary}"
+                            WidthRequest="40"
+                            HeightRequest="4"
+                            HorizontalOptions="End"
+                            VerticalOptions="End"/>
+                    <BoxView Color="{StaticResource Primary}"
+                            WidthRequest="4"
+                            HeightRequest="40"
+                            HorizontalOptions="End"
+                            VerticalOptions="End"/>
+                </Grid>
+            </Grid>
+
+            <!-- Success Indicator (shown when QR detected) -->
+            <Border StrokeThickness="0"
+                    BackgroundColor="#CC000000"
+                    IsVisible="{Binding HasScannedData}"
+                    HorizontalOptions="Fill"
+                    VerticalOptions="Fill">
+                <VerticalStackLayout Spacing="16"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center">
+                    <Border StrokeThickness="0"
+                            WidthRequest="80"
+                            HeightRequest="80"
+                            BackgroundColor="{StaticResource Primary}"
+                            HorizontalOptions="Center">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="40"/>
+                        </Border.StrokeShape>
+                        <Label Text="&#xE86C;"
+                               FontFamily="MaterialSymbols"
+                               FontSize="48"
+                               TextColor="{StaticResource White}"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"/>
+                    </Border>
+                    
+                    <Label Text="QR Code Detected"
+                           FontSize="24"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource White}"
+                           HorizontalTextAlignment="Center"/>
+                    
+                    <Label Text="Processing..."
+                           FontSize="16"
+                           TextColor="{StaticResource White}"
+                           HorizontalTextAlignment="Center"/>
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+
+        <!-- Bottom Instruction Area -->
+        <Grid Grid.Row="2" Padding="20" BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}">
+            <VerticalStackLayout Spacing="12">
+                <Label Text="{Binding ScanInstruction}"
+                       FontSize="16"
+                       HorizontalTextAlignment="Center"
+                       TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}"/>
+                
+                <Label Text="Supported QR Codes:"
+                       FontSize="14"
+                       FontAttributes="Bold"
+                       HorizontalTextAlignment="Center"
+                       TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"/>
+                
+                <HorizontalStackLayout Spacing="20" HorizontalOptions="Center">
+                    <VerticalStackLayout Spacing="4">
+                        <Border StrokeThickness="0"
+                                WidthRequest="40"
+                                HeightRequest="40"
+                                BackgroundColor="#1A004bad"
+                                HorizontalOptions="Center">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="20"/>
+                            </Border.StrokeShape>
+                            <Label Text="&#xE147;"
+                                   FontFamily="MaterialSymbols"
+                                   FontSize="24"
+                                   TextColor="{StaticResource Primary}"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"/>
+                        </Border>
+                        <Label Text="Credential Offer"
+                               FontSize="12"
+                               HorizontalTextAlignment="Center"
+                               TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="4">
+                        <Border StrokeThickness="0"
+                                WidthRequest="40"
+                                HeightRequest="40"
+                                BackgroundColor="#1A22c55e"
+                                HorizontalOptions="Center">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="20"/>
+                            </Border.StrokeShape>
+                            <Label Text="&#xE8EE;"
+                                   FontFamily="MaterialSymbols"
+                                   FontSize="24"
+                                   TextColor="#22c55e"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"/>
+                        </Border>
+                        <Label Text="Verification"
+                               FontSize="12"
+                               HorizontalTextAlignment="Center"
+                               TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}"/>
+                    </VerticalStackLayout>
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+        </Grid>
+    </Grid>
+</ContentPage>
