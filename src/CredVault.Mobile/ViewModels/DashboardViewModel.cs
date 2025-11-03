@@ -37,7 +37,7 @@ public partial class DashboardViewModel : ObservableObject
         {
             // Set greeting based on time of day
             var hour = DateTime.Now.Hour;
-            var userName = "Alex"; // Get from user service later
+            var userName = await GetUserNameAsync();
             
             GreetingText = hour < 12 ? $"Good morning, {userName}" :
                           hour < 18 ? $"Good afternoon, {userName}" :
@@ -68,7 +68,7 @@ public partial class DashboardViewModel : ObservableObject
             }
 
             // Load recent activities
-            LoadRecentActivities();
+            await LoadRecentActivities();
         }
         catch (Exception ex)
         {
@@ -77,24 +77,82 @@ public partial class DashboardViewModel : ObservableObject
         }
     }
 
-    private void LoadRecentActivities()
+    private async Task<string> GetUserNameAsync()
     {
-        // Mock data - replace with actual service call
-        RecentActivities.Clear();
-        RecentActivities.Add(new ActivityInfo
+        try
         {
-            Icon = "✅",
-            Description = "National ID verified successfully",
-            TimeAgo = "2 hours ago"
-        });
-        RecentActivities.Add(new ActivityInfo
+            // Try to get username from SecureStorage first
+            var username = await SecureStorage.GetAsync("username");
+            if (!string.IsNullOrEmpty(username))
+                return username;
+            
+            // Fallback to "User" if not found
+            return "User";
+        }
+        catch
         {
-            Icon = "📤",
-            Description = "Shared Driver's License",
-            TimeAgo = "1 day ago"
-        });
+            return "User";
+        }
+    }
+    
+    private async Task LoadRecentActivities()
+    {
+        try
+        {
+            // Load real activity logs from API
+            var result = await _walletService.GetActivityLogsAsync(page: 1, pageSize: 10);
+            RecentActivities.Clear();
+            
+            if (result.IsSuccess && result.Data != null)
+            {
+                foreach (var log in result.Data.Take(5)) // Show top 5 recent activities
+                {
+                    RecentActivities.Add(new ActivityInfo
+                    {
+                        Icon = GetIconForActivityType(log.Action ?? ""),
+                        Description = log.Details ?? log.Action ?? "Unknown activity",
+                        TimeAgo = GetTimeAgo(log.Timestamp)
+                    });
+                }
+            }
+            
+            HasRecentActivity = RecentActivities.Count > 0;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Failed to load activity logs: {ex.Message}");
+            HasRecentActivity = false;
+        }
+    }
+    
+    private static string GetIconForActivityType(string eventType) => eventType?.ToLower() switch
+    {
+        "issued" => "✅",
+        "verified" => "✅",
+        "shared" => "📤",
+        "presented" => "📤",
+        "revoked" => "🚫",
+        "suspended" => "⏸️",
+        "reactivated" => "▶️",
+        _ => "📝"
+    };
+    
+    private static string GetTimeAgo(DateTime timestamp)
+    {
+        var timeSpan = DateTime.Now - timestamp;
         
-        HasRecentActivity = RecentActivities.Count > 0;
+        if (timeSpan.TotalMinutes < 1)
+            return "Just now";
+        if (timeSpan.TotalMinutes < 60)
+            return $"{(int)timeSpan.TotalMinutes} minute{((int)timeSpan.TotalMinutes == 1 ? "" : "s")} ago";
+        if (timeSpan.TotalHours < 24)
+            return $"{(int)timeSpan.TotalHours} hour{((int)timeSpan.TotalHours == 1 ? "" : "s")} ago";
+        if (timeSpan.TotalDays < 7)
+            return $"{(int)timeSpan.TotalDays} day{((int)timeSpan.TotalDays == 1 ? "" : "s")} ago";
+        if (timeSpan.TotalDays < 30)
+            return $"{(int)(timeSpan.TotalDays / 7)} week{((int)(timeSpan.TotalDays / 7) == 1 ? "" : "s")} ago";
+        
+        return timestamp.ToString("MMM d, yyyy");
     }
 
     private static string GetIconForType(string type) => type?.ToLower() switch

@@ -4,23 +4,47 @@
              xmlns:viewmodels="clr-namespace:CredVault.Mobile.ViewModels"
              x:Class="CredVault.Mobile.Views.RegisterPage"
              x:DataType="viewmodels:RegisterViewModel"
-             Shell.NavBarIsVisible="True"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{AppThemeBinding Light=#F5F7F8, Dark=#101822}"
              Title="Create Account">
     
     <ScrollView>
-        <VerticalStackLayout Padding="30" Spacing="20">
+        <VerticalStackLayout Padding="24,40" Spacing="0" MaximumWidthRequest="500" HorizontalOptions="Center">
             
-            <Label Text="Join CredVault" 
-                   FontSize="28" 
+            <!-- Logo with GovStack Wallet Text -->
+            <HorizontalStackLayout HorizontalOptions="Center" Spacing="12" Margin="0,0,0,32">
+                <Border BackgroundColor="{StaticResource Primary}"
+                        StrokeThickness="0"
+                        HeightRequest="32"
+                        WidthRequest="32"
+                        StrokeShape="RoundRectangle 4">
+                    <Label Text="⬜"
+                           FontSize="18"
+                           TextColor="White"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"/>
+                </Border>
+                <Label Text="GovStack Wallet"
+                       FontSize="24"
+                       FontAttributes="Bold"
+                       TextColor="{AppThemeBinding Light=#1F2937, Dark=White}"
+                       VerticalOptions="Center"/>
+            </HorizontalStackLayout>
+            
+            <!-- Headline -->
+            <Label Text="Create Account" 
+                   FontSize="32" 
                    FontAttributes="Bold"
                    HorizontalOptions="Center"
-                   Margin="0,20,0,10"/>
+                   TextColor="{AppThemeBinding Light=#333333, Dark=White}"
+                   Margin="0,0,0,8"/>
             
-            <Label Text="Create your digital identity wallet" 
-                   FontSize="14" 
-                   TextColor="{StaticResource Gray600}"
+            <!-- Subheading -->
+            <Label Text="Create a secure account to manage your digital credentials." 
+                   FontSize="16" 
                    HorizontalOptions="Center"
-                   Margin="0,0,0,20"/>
+                   TextColor="{AppThemeBinding Light=#333333, Dark=#D1D5DB}"
+                   Margin="0,0,0,32"/>
             
             <!-- Registration Form -->
             <Frame BorderColor="{StaticResource Gray200}" 

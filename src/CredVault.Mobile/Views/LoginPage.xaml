@@ -5,94 +5,163 @@
              x:Class="CredVault.Mobile.Views.LoginPage"
              x:DataType="viewmodels:LoginViewModel"
              Shell.NavBarIsVisible="False"
-             Title="Welcome to CredVault">
+             BackgroundColor="{AppThemeBinding Light=#F6F7F8, Dark=#101822}"
+             Title="Login">
     
     <ScrollView>
-        <VerticalStackLayout Padding="30" Spacing="20" VerticalOptions="Center">
+        <VerticalStackLayout Padding="24,40" Spacing="0" VerticalOptions="Center" MaximumWidthRequest="500">
             
-            <!-- App Logo/Title -->
-            <Label Text="🔐" FontSize="60" HorizontalOptions="Center"/>
-            <Label Text="CredVault" 
-                   FontSize="32" 
-                   FontAttributes="Bold"
-                   HorizontalOptions="Center"/>
-            <Label Text="Your Digital Identity Wallet" 
-                   FontSize="16" 
-                   TextColor="{StaticResource Gray600}"
-                   HorizontalOptions="Center"
-                   Margin="0,0,0,40"/>
-            
-            <!-- Login Form -->
-            <Frame BorderColor="{StaticResource Gray200}" 
-                   CornerRadius="8" 
-                   Padding="20"
-                   HasShadow="False">
-                <VerticalStackLayout Spacing="15">
-                    
-                    <Label Text="Username" FontAttributes="Bold"/>
-                    <Entry Text="{Binding Username}"
-                           Placeholder="Enter your username"
-                           AutomationId="UsernameEntry"/>
-                    
-                    <Label Text="Password" FontAttributes="Bold" Margin="0,10,0,0"/>
-                    <Entry Text="{Binding Password}"
-                           Placeholder="Enter your password"
-                           IsPassword="True"
-                           AutomationId="PasswordEntry"/>
-                    
-                    <!-- Error Message -->
-                    <Label Text="{Binding ErrorMessage}"
-                           TextColor="{StaticResource Danger}"
-                           IsVisible="{Binding HasError}"
-                           Margin="0,10,0,0"/>
-                    
-                    <!-- Login Button -->
-                    <Button Text="Login"
-                            Command="{Binding LoginCommand}"
-                            BackgroundColor="{StaticResource Primary}"
-                            TextColor="White"
-                            CornerRadius="8"
-                            Margin="0,20,0,0"
-                            HeightRequest="50"
-                            AutomationId="LoginButton"/>
-                    
-                    <!-- Loading Indicator -->
-                    <ActivityIndicator IsRunning="{Binding IsBusy}"
-                                      IsVisible="{Binding IsBusy}"
-                                      Color="{StaticResource Primary}"
-                                      Margin="0,10,0,0"/>
-                    
-                </VerticalStackLayout>
-            </Frame>
-            
-            <!-- Register Link -->
-            <HorizontalStackLayout HorizontalOptions="Center" Spacing="5" Margin="0,20,0,0">
-                <Label Text="Don't have an account?" TextColor="{StaticResource Gray600}"/>
-                <Label Text="Register"
-                       TextColor="{StaticResource Primary}"
+            <!-- Logo Circle with Check Icon -->
+            <Border BackgroundColor="{StaticResource Primary}"
+                    StrokeThickness="0"
+                    HeightRequest="64"
+                    WidthRequest="64"
+                    StrokeShape="RoundRectangle 32"
+                    Margin="0,0,0,32"
+                    HorizontalOptions="Center">
+                <Label Text="✓"
+                       FontSize="36"
                        FontAttributes="Bold"
+                       TextColor="White"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"/>
+            </Border>
+            
+            <!-- Headline -->
+            <Label Text="Welcome Back" 
+                   FontSize="28" 
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   TextColor="{AppThemeBinding Light=#1F2937, Dark=White}"
+                   Margin="0,0,0,8"/>
+            
+            <!-- Subheading -->
+            <Label Text="Log in to your GovStack Wallet account" 
+                   FontSize="16" 
+                   HorizontalOptions="Center"
+                   TextColor="{AppThemeBinding Light=#6B7280, Dark=#9CA3AF}"
+                   Margin="0,0,0,32"/>
+            
+            <!-- Input Form -->
+            <VerticalStackLayout Spacing="16" Margin="0,0,0,16">
+                
+                <!-- Email Field -->
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Email Address"
+                           FontSize="14"
+                           FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light=#374151, Dark=#D1D5DB}"/>
+                    <Border StrokeThickness="1"
+                            Stroke="{AppThemeBinding Light=#D1D5DB, Dark=#4B5563}"
+                            StrokeShape="RoundRectangle 8"
+                            BackgroundColor="{AppThemeBinding Light=White, Dark=#1F2937}">
+                        <Entry Text="{Binding Username}"
+                               Placeholder="Enter your email"
+                               PlaceholderColor="{AppThemeBinding Light=#9CA3AF, Dark=#6B7280}"
+                               TextColor="{AppThemeBinding Light=#1F2937, Dark=White}"
+                               BackgroundColor="Transparent"
+                               Keyboard="Email"
+                               HeightRequest="48"
+                               AutomationId="UsernameEntry"/>
+                    </Border>
+                </VerticalStackLayout>
+                
+                <!-- Password Field -->
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Password"
+                           FontSize="14"
+                           FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light=#374151, Dark=#D1D5DB}"/>
+                    <Border StrokeThickness="1"
+                            Stroke="{AppThemeBinding Light=#D1D5DB, Dark=#4B5563}"
+                            StrokeShape="RoundRectangle 8"
+                            BackgroundColor="{AppThemeBinding Light=White, Dark=#1F2937}">
+                        <Entry Text="{Binding Password}"
+                               Placeholder="Enter your password"
+                               PlaceholderColor="{AppThemeBinding Light=#9CA3AF, Dark=#6B7280}"
+                               TextColor="{AppThemeBinding Light=#1F2937, Dark=White}"
+                               BackgroundColor="Transparent"
+                               IsPassword="True"
+                               HeightRequest="48"
+                               AutomationId="PasswordEntry"/>
+                    </Border>
+                    <Label Text="Forgot Password?"
+                           FontSize="14"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource Primary}"
+                           HorizontalOptions="End">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding NavigateToForgotPasswordCommand}"/>
+                        </Label.GestureRecognizers>
+                    </Label>
+                </VerticalStackLayout>
+                
+                <!-- Error Message -->
+                <Border IsVisible="{Binding HasError}"
+                        StrokeThickness="1"
+                        Stroke="{StaticResource Danger}"
+                        StrokeShape="RoundRectangle 8"
+                        BackgroundColor="{AppThemeBinding Light=#FEE2E2, Dark=#7F1D1D}"
+                        Padding="12">
+                    <Label Text="{Binding ErrorMessage}"
+                           FontSize="14"
+                           TextColor="{StaticResource Danger}"/>
+                </Border>
+                
+            </VerticalStackLayout>
+            
+            <!-- Action Buttons -->
+            <VerticalStackLayout Spacing="16" Margin="0,0,0,24">
+                
+                <!-- Login Button -->
+                <Button Text="Log In"
+                        Command="{Binding LoginCommand}"
+                        BackgroundColor="{StaticResource Primary}"
+                        TextColor="White"
+                        FontSize="16"
+                        FontAttributes="Bold"
+                        CornerRadius="8"
+                        HeightRequest="48"
+                        AutomationId="LoginButton"/>
+                
+                <!-- Loading Indicator -->
+                <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                  IsVisible="{Binding IsBusy}"
+                                  Color="{StaticResource Primary}"
+                                  HeightRequest="32"/>
+                
+                <!-- Biometric Login Button -->
+                <Border StrokeThickness="1"
+                        Stroke="{AppThemeBinding Light=#D1D5DB, Dark=#4B5563}"
+                        StrokeShape="RoundRectangle 8"
+                        BackgroundColor="{AppThemeBinding Light=White, Dark=#1F2937}">
+                    <Button Text="🔐 Log in with Biometrics"
+                            Command="{Binding LoginWithOAuthCommand}"
+                            BackgroundColor="Transparent"
+                            TextColor="{AppThemeBinding Light=#374151, Dark=#D1D5DB}"
+                            FontSize="16"
+                            FontAttributes="Bold"
+                            HeightRequest="48"
+                            AutomationId="BiometricButton"/>
+                </Border>
+                
+            </VerticalStackLayout>
+            
+            <!-- Footer Link -->
+            <HorizontalStackLayout HorizontalOptions="Center" Spacing="4">
+                <Label Text="Don't have an account?"
+                       FontSize="14"
+                       TextColor="{AppThemeBinding Light=#6B7280, Dark=#9CA3AF}"/>
+                <Label Text="Sign up"
+                       FontSize="14"
+                       FontAttributes="Bold"
+                       TextColor="{StaticResource Primary}"
                        TextDecorations="Underline">
                     <Label.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding NavigateToRegisterCommand}"/>
                     </Label.GestureRecognizers>
                 </Label>
             </HorizontalStackLayout>
-            
-            <!-- OAuth Option (if needed later) -->
-            <Label Text="— OR —" 
-                   HorizontalOptions="Center"
-                   TextColor="{StaticResource Gray600}"
-                   Margin="0,20,0,10"/>
-            
-            <Button Text="Login with OAuth2"
-                    Command="{Binding LoginWithOAuthCommand}"
-                    BackgroundColor="{StaticResource Gray100}"
-                    TextColor="{StaticResource Gray900}"
-                    BorderColor="{StaticResource Gray300}"
-                    BorderWidth="1"
-                    CornerRadius="8"
-                    HeightRequest="50"
-                    AutomationId="OAuthButton"/>
             
         </VerticalStackLayout>
     </ScrollView>
