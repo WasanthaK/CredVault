@@ -67,9 +67,14 @@
 
 ---
 
-## API Endpoints Mapping
+### API Endpoints Mapping
 
-### Wallet API (`http://localhost:7015/api/v1`)
+### Wallet API
+
+**Azure (Production):** `https://apim-wallet-dev.azure-api.net/wallet/api/v1/wallet`  
+**Local (Docker):** `http://localhost:7015/api/v1`
+
+> ⚠️ **Note:** All Azure requests require `Ocp-Apim-Subscription-Key` header
 
 #### Authorization
 - `GET /Authorization/authorize` - Initiate OAuth2 flow
@@ -130,15 +135,44 @@
 
 ---
 
-### Identity API (`http://localhost:7001`)
+### Identity API
 
-**Note**: Endpoints to be documented based on GovStack Identity specification.
+**Azure (Production):** `https://apim-wallet-dev.azure-api.net/identity/api/v1/identity`  
+**Local (Docker):** `http://localhost:7001`
 
-Expected functionality:
-- User authentication (login/logout)
-- Token management (issue/refresh/revoke)
-- User profile management
-- Role-based access control
+#### Key Endpoints
+- **Authentication**
+  - `POST /auth/register` - Create new user account
+  - `POST /connect/token` - Get access token
+  - `GET /connect/authorize` - Authorization endpoint
+
+- **User Management**
+  - `GET /users` - List users
+  - `GET /users/{userId}` - Get user details
+  - `POST /users/change-password` - Change password
+
+- **Configuration**
+  - `GET /.well-known/openid-configuration` - OpenID configuration
+
+---
+
+### Consent API
+
+**Azure (Production):** `https://apim-wallet-dev.azure-api.net/consent/api/v1/consent`  
+**Local (Docker):** `http://localhost:7002`
+
+#### Key Endpoints
+- `POST /consents` - Create consent
+- `POST /service/delegation` - Delegation operations
+
+---
+
+### Payments API
+
+**Azure (Production):** `https://apim-wallet-dev.azure-api.net/payments/api/v1/payments`  
+**Local (Docker):** `http://localhost:7004`
+
+> ⚠️ **Note:** Limited operations available through APIM
 
 ---
 
@@ -328,7 +362,36 @@ Old Device                Wallet Service          New Device
 
 ## Development Environments
 
-### Local Development (Docker Compose)
+### 🌐 Azure Production (Current)
+
+**All microservices are deployed to Azure Container Apps**
+
+| Service | URL | Status |
+|---------|-----|--------|
+| **API Gateway** | `https://apim-wallet-dev.azure-api.net` | ✅ Active |
+| **Wallet API** | `https://apim-wallet-dev.azure-api.net/wallet` | ✅ Active |
+| **Identity API** | `https://apim-wallet-dev.azure-api.net/identity` | ✅ Active |
+| **Consent API** | `https://apim-wallet-dev.azure-api.net/consent` | ✅ Active |
+| **Payments API** | `https://apim-wallet-dev.azure-api.net/payments` | ⚠️ Limited |
+
+**Authentication:**
+- **Subscription Key Required:** `Ocp-Apim-Subscription-Key: 4a47f13f76d54eb999efc2036245ddc2`
+- **Rate Limit:** 100 calls per 60 seconds
+- **Protocol:** HTTPS only
+
+**Direct Container URLs (Bypass APIM):**
+- Wallet: `https://wallet-wallet.kindhill-eee6017a.eastus.azurecontainerapps.io`
+- Identity: `https://wallet-identity.kindhill-eee6017a.eastus.azurecontainerapps.io`
+- Consent: `https://wallet-consent.kindhill-eee6017a.eastus.azurecontainerapps.io`
+- Payments: `https://wallet-payments.kindhill-eee6017a.eastus.azurecontainerapps.io`
+
+**📘 Full Documentation:** See `AZURE_API_ACCESS.md`
+
+---
+
+### 🐳 Local Development (Docker Compose - Optional)
+
+For local development, you can optionally run services via Docker:
 
 | Service | External Port | Internal Port | Container Name | Image |
 |---------|---------------|---------------|----------------|-------|
@@ -353,17 +416,8 @@ Old Device                Wallet Service          New Device
 - SQL Server: `Server=localhost,1433;Database=IdentityDB;`
 - Redis: `localhost:6379`
 
-### Test Environment
-| Service | URL |
-|---------|-----|
-| Wallet | `https://wallet-test.govstack.gov` |
-| Identity | `https://identity-test.govstack.gov` |
-
-### Production Environment
-| Service | URL |
-|---------|-----|
-| Wallet | `https://wallet.govstack.gov` |
-| Identity | `https://identity.govstack.gov` |
+**To switch to local development:**
+In `ApiConfiguration.cs`, set `UseAzure = false`
 
 ---
 

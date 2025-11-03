@@ -18,10 +18,31 @@ Everything matches your **Wallet API** spec and the **Stitch UI** you just built
 
 ```csharp
 // Namespace: Wallet.Api
-// Base URL: https://api.govstackwallet.gov/api/v1
-// Auth: Bearer <JWT>
+// Base URL (Azure Production): https://apim-wallet-dev.azure-api.net
+// Base URL (Local Docker): http://localhost:7015/api/v1
+// Auth: Bearer <JWT> + Azure Subscription Key
+// Azure Header: Ocp-Apim-Subscription-Key: 4a47f13f76d54eb999efc2036245ddc2
+// Rate Limit: 100 calls per 60 seconds
 // All endpoints return ProblemDetails on 4xx/5xx.
 ```
+
+---
+
+## 🌐 Azure Deployment
+
+**All microservices are now deployed to Azure Container Apps!**
+
+- **API Gateway:** `https://apim-wallet-dev.azure-api.net`
+- **Subscription Key:** `4a47f13f76d54eb999efc2036245ddc2`
+- **Full Documentation:** See `AZURE_API_ACCESS.md` in the repository
+
+**Service Base Paths:**
+- Wallet: `/wallet/api/v1/wallet`
+- Identity: `/identity/api/v1/identity`
+- Consent: `/consent/api/v1/consent`
+- Payments: `/payments/api/v1/payments`
+
+---
 
 ---
 
@@ -62,19 +83,19 @@ public record ActivityItem(
 
 ```csharp
 // Step 1: Get Credential Offer
-// GET /credential_offer
+// GET /wallet/api/v1/wallet/CredentialDiscovery/credential_offer
 Task<CredentialOffer> GetCredentialOfferAsync();
 
 // Step 2: Redirect for Authorization
-// GET /authorize
+// GET /wallet/api/v1/wallet/Authorization/authorize
 Uri GetAuthorizeUri(string offerId);
 
 // Step 3: Exchange Code → Token
-// POST /token
+// POST /wallet/api/v1/wallet/Authorization/token
 Task<TokenResponse> ExchangeTokenAsync(AuthCodeRequest req);
 
 // Step 4: Retrieve Credential
-// POST /credential
+// POST /wallet/api/v1/wallet/CredentialIssuance/credential
 Task<Credential> IssueCredentialAsync(CredentialRequest req);
 ```
 
@@ -100,13 +121,13 @@ UI Bindings in Stitch Comments:
 ## 3️⃣ Credential Details + Status + Revocation
 
 ```csharp
-// GET /credentials/{id}
+// GET /wallet/api/v1/wallet/Credential/{id}
 Task<CredentialDetails> GetCredentialAsync(Guid id);
 
-// GET /credentials/{id}/status
+// GET /wallet/api/v1/wallet/Credential/{id}/status
 Task<CredentialStatus> GetCredentialStatusAsync(Guid id);
 
-// DELETE /credentials/{id}
+// DELETE /wallet/api/v1/wallet/Credential/{id}
 Task DeleteCredentialAsync(Guid id);
 ```
 

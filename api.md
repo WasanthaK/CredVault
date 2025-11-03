@@ -1,12 +1,20 @@
 # Wallet API Endpoints
 
-**Base URL:** `http://localhost:7015/api/v1`
+## 🌐 Azure Production (Current)
 
-**Swagger UI:** `http://localhost:7015/api/v1/wallet/swagger/index.html`
+**Base URL:** `https://apim-wallet-dev.azure-api.net/wallet`  
+**Swagger UI:** `https://wallet-wallet.kindhill-eee6017a.eastus.azurecontainerapps.io/api/v1/wallet/swagger`  
+**Subscription Key:** `4a47f13f76d54eb999efc2036245ddc2` (Required in header: `Ocp-Apim-Subscription-Key`)  
+**Rate Limit:** 100 calls per 60 seconds
+
+**Full Azure Documentation:** See `AZURE_API_ACCESS.md`
 
 ---
 
-## 🐳 Docker Services Overview
+## 🐳 Local Development (Optional)
+
+**Base URL:** `http://localhost:7015/api/v1`  
+**Swagger UI:** `http://localhost:7015/api/v1/wallet/swagger/index.html`
 
 All services run in Docker Compose. Container details:
 
@@ -26,6 +34,13 @@ All services run in Docker Compose. Container details:
 ```powershell
 docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 ```
+
+---
+
+## 📡 API Endpoints
+
+> **Note:** For Azure, prepend `/wallet` to all paths below  
+> Example: `/api/v1/Authorization/authorize` becomes `/wallet/api/v1/Authorization/authorize`
 
 ## Authorization (`/api/v1/Authorization`)
 - `GET /api/v1/Authorization/authorize`
@@ -117,6 +132,21 @@ docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 
 ---
 
+## 🚀 Quick Start
+
+### Azure (Recommended)
+
+```powershell
+# Test Wallet API
+$headers = @{ "Ocp-Apim-Subscription-Key" = "4a47f13f76d54eb999efc2036245ddc2" }
+Invoke-RestMethod -Uri "https://apim-wallet-dev.azure-api.net/wallet/health" -Headers $headers
+
+# Test Identity API
+Invoke-RestMethod -Uri "https://apim-wallet-dev.azure-api.net/identity/health" -Headers $headers
+```
+
+### Local Docker (Optional)
+
 **Requirements to run:**
 - Docker Desktop running
 - All 7 containers from Docker Compose:
@@ -144,3 +174,6 @@ docker ps --format "table {{.Names}}\t{{.Status}}"
 ```powershell
 docker-compose down
 ```
+
+**Switch between environments:**  
+In `src/CredVault.Mobile/Services/ApiConfiguration.cs`, toggle `UseAzure = true/false`

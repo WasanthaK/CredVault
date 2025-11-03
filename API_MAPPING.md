@@ -4,15 +4,28 @@ This document maps each UI screen/action from the Stitch designs to specific bac
 
 ---
 
+## 🌐 API Base URLs
+
+**Production (Azure):** `https://apim-wallet-dev.azure-api.net`  
+**Local (Docker):** `http://localhost:7015`
+
+> ⚠️ **All Azure requests require:**
+> - Header: `Ocp-Apim-Subscription-Key: 4a47f13f76d54eb999efc2036245ddc2`
+> - Rate Limit: 100 calls per 60 seconds
+
+**Full API Documentation:** See `AZURE_API_ACCESS.md`
+
+---
+
 ## 📱 Dashboard / Home Screen
 
 **File**: `stitch_dashboard_home/dashboard_/_home/code.html`
 
 | UI Element | API Endpoint | Method | Purpose |
 |------------|--------------|--------|---------|
-| Credential Carousel | `GET /api/v1/Credential/holder/{holderId}` | GET | Load all user credentials |
-| Credential Status Indicator | `GET /api/v1/Credential/{credentialId}/status` | GET | Check if credential is active/suspended/revoked |
-| Activity Feed | `GET /api/v1/Wallet/logs` | GET | Display recent credential activity |
+| Credential Carousel | `GET /wallet/api/v1/wallet/Credential/holder/{holderId}` | GET | Load all user credentials |
+| Credential Status Indicator | `GET /wallet/api/v1/wallet/Credential/{credentialId}/status` | GET | Check if credential is active/suspended/revoked |
+| Activity Feed | `GET /wallet/api/v1/wallet/Wallet/logs` | GET | Display recent credential activity |
 | "Add Credential" Button | Navigate to Add Credential Flow | - | - |
 | Backup Icon | Navigate to Backup Screen | - | - |
 | Settings Icon | Navigate to Settings Screen | - | - |
@@ -26,7 +39,7 @@ This document maps each UI screen/action from the Stitch designs to specific bac
 
 | UI Element | API Endpoint | Method | Purpose |
 |------------|--------------|--------|---------|
-| Credential Type Grid | `GET /api/v1/Issuer` | GET | List available issuers/credential types |
+| Credential Type Grid | `GET /wallet/api/v1/wallet/Issuer` | GET | List available issuers/credential types |
 | "Continue" Button | Proceed to Authentication | - | - |
 
 ### Authenticate Screen
@@ -34,9 +47,9 @@ This document maps each UI screen/action from the Stitch designs to specific bac
 
 | UI Element | API Endpoint | Method | Purpose |
 |------------|--------------|--------|---------|
-| "Authenticate with Issuer" | `GET /api/v1/CredentialDiscovery/credential_offer` | GET | Get credential offer |
-| OAuth Redirect | `GET /api/v1/Authorization/authorize` | GET | Initiate OAuth flow |
-| Code Exchange | `POST /api/v1/Authorization/token` | POST | Exchange auth code for token |
+| "Authenticate with Issuer" | `GET /wallet/api/v1/wallet/CredentialDiscovery/credential_offer` | GET | Get credential offer |
+| OAuth Redirect | `GET /wallet/api/v1/wallet/Authorization/authorize` | GET | Initiate OAuth flow |
+| Code Exchange | `POST /wallet/api/v1/wallet/Authorization/token` | POST | Exchange auth code for token |
 
 ### Consent & Review Screen
 **Files**: `add_credential_-_consent_&_review/code.html`, `add_credential_-_review_&_consent/code.html`
@@ -44,14 +57,14 @@ This document maps each UI screen/action from the Stitch designs to specific bac
 | UI Element | API Endpoint | Method | Purpose |
 |------------|--------------|--------|---------|
 | Display Claims | From credential offer | - | Show what data will be stored |
-| "Accept & Add" Button | `POST /api/v1/CredentialIssuance/credential` | POST | Issue credential to holder |
+| "Accept & Add" Button | `POST /wallet/api/v1/wallet/CredentialIssuance/credential` | POST | Issue credential to holder |
 
 ### Confirmation Screen
 **Files**: `add_credential_-_confirmation_1/code.html`, `add_credential_-_confirmation_2/code.html`
 
 | UI Element | API Endpoint | Method | Purpose |
 |------------|--------------|--------|---------|
-| "View Credential" | `GET /api/v1/Credential/{credentialId}` | GET | Display credential details |
+| "View Credential" | `GET /wallet/api/v1/wallet/Credential/{credentialId}` | GET | Display credential details |
 | "Back to Wallet" | Navigate to Dashboard | - | - |
 
 ---
@@ -62,14 +75,14 @@ This document maps each UI screen/action from the Stitch designs to specific bac
 
 | UI Element | API Endpoint | Method | Purpose |
 |------------|--------------|--------|---------|
-| Load Details | `GET /api/v1/Credential/{credentialId}` | GET | Get full credential data |
-| "Verify Status" Button | `POST /api/v1/Credential/{credentialId}/verify` | POST | Verify credential validity |
-| Status Badge | `GET /api/v1/Credential/{credentialId}/status` | GET | Show current status |
+| Load Details | `GET /wallet/api/v1/wallet/Credential/{credentialId}` | GET | Get full credential data |
+| "Verify Status" Button | `POST /wallet/api/v1/wallet/Credential/{credentialId}/verify` | POST | Verify credential validity |
+| Status Badge | `GET /wallet/api/v1/wallet/Credential/{credentialId}/status` | GET | Show current status |
 | "Share" Button | Navigate to Selective Disclosure | - | - |
-| "Suspend" Button | `POST /api/v1/Credential/{credentialId}/suspend` | POST | Temporarily suspend credential |
-| "Reactivate" Button | `POST /api/v1/Credential/{credentialId}/reactivate` | POST | Reactivate suspended credential |
-| "Revoke" Button | `POST /api/v1/Credential/{credentialId}/revoke` | POST | Permanently revoke credential |
-| "Delete" Button | `DELETE /api/v1/Credential/{credentialId}` | DELETE | Remove from wallet |
+| "Suspend" Button | `POST /wallet/api/v1/wallet/Credential/{credentialId}/suspend` | POST | Temporarily suspend credential |
+| "Reactivate" Button | `POST /wallet/api/v1/wallet/Credential/{credentialId}/reactivate` | POST | Reactivate suspended credential |
+| "Revoke" Button | `POST /wallet/api/v1/wallet/Credential/{credentialId}/revoke` | POST | Permanently revoke credential |
+| "Delete" Button | `DELETE /wallet/api/v1/wallet/Credential/{credentialId}` | DELETE | Remove from wallet |
 
 ---
 
