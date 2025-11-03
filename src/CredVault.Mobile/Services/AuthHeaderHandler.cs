@@ -22,6 +22,16 @@ public class AuthHeaderHandler : DelegatingHandler
     {
         try
         {
+            // Add Azure APIM subscription key if using Azure
+            var subscriptionKey = ApiConfiguration.GetSubscriptionKey();
+            if (!string.IsNullOrEmpty(subscriptionKey))
+            {
+                request.Headers.Add("Ocp-Apim-Subscription-Key", subscriptionKey);
+                _logger.LogDebug("Added APIM subscription key to request: {Method} {Url}", 
+                    request.Method, request.RequestUri);
+            }
+            
+            // Add Bearer token for authenticated requests
             var token = await SecureStorage.GetAsync("access_token");
             
             if (!string.IsNullOrEmpty(token))

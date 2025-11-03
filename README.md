@@ -9,7 +9,18 @@
 A **Digital Wallet Mobile Application** (.NET MAUI 8) that consumes existing microservices:
 - **Wallet API** - Credential management, issuance, verification
 - **Identity API** - Authentication and user management
+- **Consent API** - Consent and delegation management
+- **Payments API** - Payment processing
 - Mobile app provides UI/UX for iOS and Android
+
+## 🌐 Deployment Status
+
+**✅ All microservices deployed to Azure Container Apps**
+
+- **Environment:** Production (Azure)
+- **API Gateway:** Azure API Management (APIM)
+- **Base URL:** `https://apim-wallet-dev.azure-api.net`
+- **Documentation:** See `AZURE_API_ACCESS.md` for subscription keys and endpoints
 
 ---
 
@@ -19,9 +30,10 @@ A **Digital Wallet Mobile Application** (.NET MAUI 8) that consumes existing mic
 |----------|---------|-------------|
 | **DEVELOPMENT_PLAN.md** | Master development plan with 20 tasks | Daily task tracking and implementation reference |
 | **ARCHITECTURE.md** | System architecture and data flows | Understanding how systems interact |
+| **AZURE_API_ACCESS.md** | **🔥 Azure API configuration & access** | **Production API endpoints, subscription keys, and examples** |
 | **API_MAPPING.md** | UI screens mapped to API endpoints | Implementing specific features |
 | **instructions.md** | Original requirements and API spec | Reference for business requirements |
-| **api.md** | Wallet API endpoint list | Quick API endpoint reference |
+| **api.md** | Wallet API endpoint list (Docker/Local) | Local development API reference |
 
 ---
 
@@ -39,7 +51,32 @@ dotnet workload list  # Should show maui
 dotnet workload install maui
 ```
 
-### 2. Verify Backend Services (Docker)
+### 2. Verify Backend Services (Azure)
+
+**All services are deployed to Azure! 🚀**
+
+```powershell
+# Set your subscription key
+$key = "4a47f13f76d54eb999efc2036245ddc2"
+$headers = @{ "Ocp-Apim-Subscription-Key" = $key }
+
+# Test Wallet API
+Invoke-RestMethod -Uri "https://apim-wallet-dev.azure-api.net/wallet/health" -Headers $headers
+
+# Test Identity API
+Invoke-RestMethod -Uri "https://apim-wallet-dev.azure-api.net/identity/health" -Headers $headers
+
+# Test Consent API
+Invoke-RestMethod -Uri "https://apim-wallet-dev.azure-api.net/consent/health" -Headers $headers
+```
+
+**See `AZURE_API_ACCESS.md` for complete API documentation.**
+
+<details>
+<summary>💡 Optional: Run Local Docker Services</summary>
+
+If you need to run services locally for development:
+
 ```powershell
 # Check all Docker services are running
 docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
@@ -54,19 +91,10 @@ docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 # - mciroservices-redis-1 (port 6379)
 
 # Test Wallet API
-curl http://localhost:7015/api/v1/wallet/swagger/index.html
-# Or open in browser:
 Start-Process "http://localhost:7015/api/v1/wallet/swagger/index.html"
-
-# Test Identity API
-curl http://localhost:7001
-
-# Test Consent API
-curl http://localhost:7002
-
-# Check service health
-docker ps | Select-String "healthy"
 ```
+
+</details>
 
 ### 3. Start Development
 ```bash
