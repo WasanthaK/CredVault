@@ -28,22 +28,22 @@ public class IdentityService
             if (request == null)
                 return ServiceResult<LoginResponseDto>.Failure("Login request cannot be null");
 
-            _logger.LogInformation("Logging in user: {Username}", request.Username);
+            _logger.LogInformation("Logging in user: {Email}", request.Email);
             var response = await _apiClient.LoginAsync(request);
             
-            if (response.Success && response.Data != null)
+            if (response != null)
             {
-                _logger.LogInformation("Successfully logged in user: {Username}", request.Username);
-                return ServiceResult<LoginResponseDto>.Success(response.Data);
+                _logger.LogInformation("Successfully logged in user: {Email}", request.Email);
+                return ServiceResult<LoginResponseDto>.Success(response);
             }
 
-            _logger.LogWarning("Failed to login user {Username}: {Message}", request.Username, response.Message);
-            return ServiceResult<LoginResponseDto>.Failure(response.Message ?? "Login failed", response.Errors?.ToArray());
+            _logger.LogWarning("Failed to login user {Email}", request.Email);
+            return ServiceResult<LoginResponseDto>.Failure("Login failed");
         }
         catch (ApiException apiEx) when (apiEx.StatusCode == HttpStatusCode.Unauthorized)
         {
-            _logger.LogWarning("Invalid credentials for user: {Username}", request.Username);
-            return ServiceResult<LoginResponseDto>.Failure("Invalid username or password");
+            _logger.LogWarning("Invalid credentials for user: {Email}", request.Email);
+            return ServiceResult<LoginResponseDto>.Failure("Invalid email or password");
         }
         catch (ApiException apiEx)
         {
@@ -146,7 +146,7 @@ public class IdentityService
             
             if (response.Success && response.Data != null)
             {
-                _logger.LogInformation("Successfully registered user: {UserId}", response.Data.UserId);
+                _logger.LogInformation("Successfully registered user: {UserId}", response.Data.Id);
                 return ServiceResult<RegistrationResponseDto>.Success(response.Data);
             }
 

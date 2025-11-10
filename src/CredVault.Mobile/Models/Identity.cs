@@ -5,10 +5,10 @@ namespace CredVault.Mobile.Models;
 /// </summary>
 public class LoginRequestDto
 {
-    public required string Username { get; set; }
+    public required string Email { get; set; }
     public required string Password { get; set; }
-    public string? ClientId { get; set; }
-    public string? Scope { get; set; }
+    public string? IpAddress { get; set; }
+    public string? UserAgent { get; set; }
 }
 
 /// <summary>
@@ -22,7 +22,7 @@ public class LoginResponseDto
     public int ExpiresIn { get; set; }
     public string? Scope { get; set; }
     public string? IdToken { get; set; }
-    public UserProfileDto? UserProfile { get; set; }
+    public UserProfileDto? User { get; set; }
 }
 
 /// <summary>
@@ -61,15 +61,28 @@ public class RegistrationRequestDto
 }
 
 /// <summary>
+/// Wrapper for registration request (Azure API expects this format)
+/// </summary>
+public class RegistrationRequestWrapper
+{
+    public required RegistrationRequestDto Request { get; set; }
+}
+
+/// <summary>
 /// User registration response
 /// </summary>
 public class RegistrationResponseDto
 {
-    public required string UserId { get; set; }
-    public required string Username { get; set; }
+    public required string Id { get; set; }
     public required string Email { get; set; }
-    public bool IsEmailVerified { get; set; }
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public List<string>? Roles { get; set; }
+    public bool IsActive { get; set; }
+    public DateTime? LastLoginAt { get; set; }
     public DateTime CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+    public int LoginCount { get; set; }
 }
 
 /// <summary>
@@ -77,8 +90,9 @@ public class RegistrationResponseDto
 /// </summary>
 public class UserProfileDto
 {
-    public required string UserId { get; set; }
-    public required string Username { get; set; }
+    public required string Id { get; set; }
+    public string UserId => Id; // Alias for backwards compatibility
+    public string Username => Email; // Use email as username
     public required string Email { get; set; }
     public bool IsEmailVerified { get; set; }
     public string? PhoneNumber { get; set; }
@@ -91,10 +105,12 @@ public class UserProfileDto
     public string? Country { get; set; }
     public string? Language { get; set; }
     public string? TimeZone { get; set; }
+    public List<string>? Roles { get; set; }
     public bool IsActive { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
     public DateTime? LastLoginAt { get; set; }
+    public int LoginCount { get; set; }
     public Dictionary<string, object>? Metadata { get; set; }
 }
 

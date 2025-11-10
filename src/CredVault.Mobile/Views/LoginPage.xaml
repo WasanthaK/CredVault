@@ -55,14 +55,14 @@
                             Stroke="{AppThemeBinding Light=#D1D5DB, Dark=#4B5563}"
                             StrokeShape="RoundRectangle 8"
                             BackgroundColor="{AppThemeBinding Light=White, Dark=#1F2937}">
-                        <Entry Text="{Binding Username}"
+                        <Entry Text="{Binding Email}"
                                Placeholder="Enter your email"
                                PlaceholderColor="{AppThemeBinding Light=#9CA3AF, Dark=#6B7280}"
                                TextColor="{AppThemeBinding Light=#1F2937, Dark=White}"
                                BackgroundColor="Transparent"
                                Keyboard="Email"
                                HeightRequest="48"
-                               AutomationId="UsernameEntry"/>
+                               AutomationId="EmailEntry"/>
                     </Border>
                 </VerticalStackLayout>
                 
@@ -85,27 +85,23 @@
                                HeightRequest="48"
                                AutomationId="PasswordEntry"/>
                     </Border>
-                    <Label Text="Forgot Password?"
+                    <Label Text="Forgot Password?" 
                            FontSize="14"
                            FontAttributes="Bold"
                            TextColor="{StaticResource Primary}"
-                           HorizontalOptions="End">
-                        <Label.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding NavigateToForgotPasswordCommand}"/>
-                        </Label.GestureRecognizers>
-                    </Label>
+                           HorizontalOptions="End" />
                 </VerticalStackLayout>
                 
                 <!-- Error Message -->
                 <Border IsVisible="{Binding HasError}"
                         StrokeThickness="1"
-                        Stroke="{StaticResource Danger}"
+                        Stroke="{AppThemeBinding Light=#DC2626, Dark=#EF4444}"
                         StrokeShape="RoundRectangle 8"
                         BackgroundColor="{AppThemeBinding Light=#FEE2E2, Dark=#7F1D1D}"
                         Padding="12">
                     <Label Text="{Binding ErrorMessage}"
                            FontSize="14"
-                           TextColor="{StaticResource Danger}"/>
+                           TextColor="{AppThemeBinding Light=#DC2626, Dark=#EF4444}"/>
                 </Border>
                 
             </VerticalStackLayout>

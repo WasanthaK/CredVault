@@ -9,10 +9,10 @@ namespace CredVault.Mobile.ViewModels;
 public partial class LoginViewModel : ObservableObject
 {
     private readonly IIdentityApiClient _identityApiClient;
-    private readonly IAuthenticationFlowService _authenticationFlowService;
+    private readonly AuthenticationFlowService? _authenticationFlowService;
 
     [ObservableProperty]
-    private string username = string.Empty;
+    private string email = string.Empty;
 
     [ObservableProperty]
     private string password = string.Empty;
@@ -28,7 +28,7 @@ public partial class LoginViewModel : ObservableObject
 
     public LoginViewModel(
         IIdentityApiClient identityApiClient,
-        IAuthenticationFlowService authenticationFlowService)
+        AuthenticationFlowService? authenticationFlowService = null)
     {
         _identityApiClient = identityApiClient;
         _authenticationFlowService = authenticationFlowService;
@@ -47,10 +47,10 @@ public partial class LoginViewModel : ObservableObject
             ErrorMessage = string.Empty;
 
             // Validate input
-            if (string.IsNullOrWhiteSpace(Username))
+            if (string.IsNullOrWhiteSpace(Email))
             {
                 HasError = true;
-                ErrorMessage = "Please enter your username.";
+                ErrorMessage = "Please enter your email.";
                 return;
             }
 
@@ -64,34 +64,34 @@ public partial class LoginViewModel : ObservableObject
             // Call login API
             var request = new LoginRequestDto
             {
-                Username = Username.Trim(),
+                Email = Email.Trim(),
                 Password = Password
             };
 
             var response = await _identityApiClient.LoginAsync(request);
 
-            if (response?.Data != null)
+            if (response != null)
             {
                 // Store tokens in SecureStorage
-                await SecureStorage.SetAsync("access_token", response.Data.AccessToken);
-                await SecureStorage.SetAsync("refresh_token", response.Data.RefreshToken);
-                await SecureStorage.SetAsync("token_type", response.Data.TokenType);
-                await SecureStorage.SetAsync("expires_in", response.Data.ExpiresIn.ToString());
+                await SecureStorage.SetAsync("access_token", response.AccessToken);
+                await SecureStorage.SetAsync("refresh_token", response.RefreshToken);
+                await SecureStorage.SetAsync("token_type", response.TokenType);
+                await SecureStorage.SetAsync("expires_in", response.ExpiresIn.ToString());
                 
-                if (!string.IsNullOrEmpty(response.Data.IdToken))
+                if (!string.IsNullOrEmpty(response.IdToken))
                 {
-                    await SecureStorage.SetAsync("id_token", response.Data.IdToken);
+                    await SecureStorage.SetAsync("id_token", response.IdToken);
                 }
 
                 // Store user profile if available
-                if (response.Data.UserProfile != null)
+                if (response.User != null)
                 {
-                    await SecureStorage.SetAsync("user_id", response.Data.UserProfile.UserId);
-                    await SecureStorage.SetAsync("username", response.Data.UserProfile.Username);
-                    await SecureStorage.SetAsync("email", response.Data.UserProfile.Email);
+                    await SecureStorage.SetAsync("user_id", response.User.UserId);
+                    await SecureStorage.SetAsync("username", response.User.Username);
+                    await SecureStorage.SetAsync("email", response.User.Email);
                 }
 
-                Debug.WriteLine($"✅ Login successful for user: {Username}");
+                Debug.WriteLine($"✅ Login successful for user: {Email}");
 
                 // Navigate to dashboard
                 await Shell.Current.GoToAsync("//dashboard");
@@ -99,7 +99,7 @@ public partial class LoginViewModel : ObservableObject
             else
             {
                 HasError = true;
-                ErrorMessage = response?.Message ?? "Login failed. Please check your credentials.";
+                ErrorMessage = "Login failed. Please check your credentials.";
             }
         }
         catch (Refit.ApiException apiEx)
@@ -109,7 +109,7 @@ public partial class LoginViewModel : ObservableObject
             
             ErrorMessage = apiEx.StatusCode switch
             {
-                System.Net.HttpStatusCode.Unauthorized => "Invalid username or password.",
+                System.Net.HttpStatusCode.Unauthorized => "Invalid email or password.",
                 System.Net.HttpStatusCode.BadRequest => "Invalid login request. Please check your input.",
                 System.Net.HttpStatusCode.TooManyRequests => "Too many login attempts. Please try again later.",
                 _ => "Login failed. Please try again."
@@ -139,38 +139,9 @@ public partial class LoginViewModel : ObservableObject
     [RelayCommand]
     private async Task LoginWithOAuthAsync()
     {
-        if (IsBusy)
-            return;
-
-        try
-        {
-            IsBusy = true;
-            HasError = false;
-            ErrorMessage = string.Empty;
-
-            // Use the authentication flow service for OAuth2/OIDC flow
-            var success = await _authenticationFlowService.AuthorizeAsync();
-
-            if (success)
-            {
-                Debug.WriteLine("✅ OAuth login successful");
-                await Shell.Current.GoToAsync("//dashboard");
-            }
-            else
-            {
-                HasError = true;
-                ErrorMessage = "OAuth login was cancelled or failed.";
-            }
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"❌ OAuth login error: {ex.Message}");
-            HasError = true;
-            ErrorMessage = "OAuth login failed. Please try again.";
-        }
-        finally
-        {
-            IsBusy = false;
-        }
+        // OAuth/Biometric login not yet implemented
+        HasError = true;
+        ErrorMessage = "Biometric login coming soon. Please use username/password.";
+        await Task.CompletedTask;
     }
 }

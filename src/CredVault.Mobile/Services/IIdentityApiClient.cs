@@ -7,7 +7,7 @@ public interface IIdentityApiClient
 {
     // Authentication endpoints
     [Post("/api/v1/identity/auth/login")]
-    Task<ApiResponseDto<LoginResponseDto>> LoginAsync([Body] LoginRequestDto request);
+    Task<LoginResponseDto> LoginAsync([Body] LoginRequestDto request);
     
     [Post("/api/v1/identity/auth/logout")]
     Task<BooleanApiResponseDto> LogoutAsync();

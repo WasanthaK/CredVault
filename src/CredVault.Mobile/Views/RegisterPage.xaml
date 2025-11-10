@@ -69,7 +69,7 @@
                            Placeholder="Choose a strong password"
                            IsPassword="True"
                            AutomationId="PasswordEntry"/>
-                    <Label Text="Must contain uppercase, lowercase, number, and special character"
+                    <Label Text="At least 8 characters with uppercase, lowercase, digit, and special character"
                            FontSize="12"
                            TextColor="{StaticResource Gray600}"/>
                     
@@ -97,13 +97,13 @@
                     
                     <!-- Error Message -->
                     <Label Text="{Binding ErrorMessage}"
-                           TextColor="{StaticResource Danger}"
+                           TextColor="{AppThemeBinding Light=#DC2626, Dark=#EF4444}"
                            IsVisible="{Binding HasError}"
                            Margin="0,10,0,0"/>
                     
                     <!-- Success Message -->
                     <Label Text="{Binding SuccessMessage}"
-                           TextColor="{StaticResource Success}"
+                           TextColor="{AppThemeBinding Light=#059669, Dark=#10B981}"
                            IsVisible="{Binding HasSuccess}"
                            Margin="0,10,0,0"/>
                     

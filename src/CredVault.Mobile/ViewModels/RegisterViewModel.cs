@@ -106,20 +106,34 @@ public partial class RegisterViewModel : ObservableObject
         catch (Refit.ApiException apiEx)
         {
             Debug.WriteLine($"❌ API Error: {apiEx.StatusCode} - {apiEx.Content}");
+            Debug.WriteLine($"❌ API Error Details: {apiEx.Message}");
+            Debug.WriteLine($"❌ Request URI: {apiEx.RequestMessage?.RequestUri}");
             HasError = true;
             
             ErrorMessage = apiEx.StatusCode switch
             {
                 System.Net.HttpStatusCode.BadRequest => ParseValidationErrors(apiEx.Content),
                 System.Net.HttpStatusCode.Conflict => "Username or email already exists.",
-                _ => "Registration failed. Please try again."
+                System.Net.HttpStatusCode.NotFound => "Registration endpoint not available. Please contact support.",
+                System.Net.HttpStatusCode.Unauthorized => "API key invalid. Please contact support.",
+                System.Net.HttpStatusCode.ServiceUnavailable => "Service temporarily unavailable. Please try again later.",
+                _ => $"Registration failed ({apiEx.StatusCode}). Please try again."
             };
+        }
+        catch (HttpRequestException httpEx)
+        {
+            Debug.WriteLine($"❌ Network error: {httpEx.Message}");
+            Debug.WriteLine($"❌ Inner exception: {httpEx.InnerException?.Message}");
+            HasError = true;
+            ErrorMessage = "Unable to connect to server. Please check your internet connection.";
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"❌ Registration error: {ex.Message}");
+            Debug.WriteLine($"❌ Error type: {ex.GetType().Name}");
+            Debug.WriteLine($"❌ Stack trace: {ex.StackTrace}");
             HasError = true;
-            ErrorMessage = "An error occurred during registration. Please check your connection and try again.";
+            ErrorMessage = $"An error occurred: {ex.Message}";
         }
         finally
         {
@@ -176,14 +190,14 @@ public partial class RegisterViewModel : ObservableObject
         if (Password.Length < 8)
         {
             HasError = true;
-            ErrorMessage = "Password must be at least 8 characters long.";
+            ErrorMessage = "Password must be at least 8 characters.";
             return false;
         }
 
         if (!IsStrongPassword(Password))
         {
             HasError = true;
-            ErrorMessage = "Password must contain uppercase, lowercase, number, and special character.";
+            ErrorMessage = "Password must contain:\n• 1 uppercase letter (A-Z)\n• 1 lowercase letter (a-z)\n• 1 digit (0-9)\n• 1 special character (!@#$%^&*())";
             return false;
         }
 
@@ -231,11 +245,44 @@ public partial class RegisterViewModel : ObservableObject
         if (string.IsNullOrEmpty(content))
             return "Invalid input. Please check your data.";
 
-        // Try to extract meaningful error messages from the API response
+        try
+        {
+            // Try to parse as JSON and extract the detail field
+            var jsonDoc = System.Text.Json.JsonDocument.Parse(content);
+            if (jsonDoc.RootElement.TryGetProperty("detail", out var detailElement))
+            {
+                var detail = detailElement.GetString();
+                if (!string.IsNullOrEmpty(detail))
+                    return detail;
+            }
+            
+            // Also check for errors array
+            if (jsonDoc.RootElement.TryGetProperty("errors", out var errorsElement))
+            {
+                // Return the first error message found
+                foreach (var error in errorsElement.EnumerateObject())
+                {
+                    if (error.Value.ValueKind == System.Text.Json.JsonValueKind.Array)
+                    {
+                        var firstError = error.Value.EnumerateArray().FirstOrDefault();
+                        if (firstError.ValueKind == System.Text.Json.JsonValueKind.String)
+                        {
+                            return $"{error.Name}: {firstError.GetString()}";
+                        }
+                    }
+                }
+            }
+        }
+        catch
+        {
+            // If JSON parsing fails, fall back to simple string matching
+        }
+
+        // Fallback to simple string matching
         if (content.Contains("password", StringComparison.OrdinalIgnoreCase))
         {
             if (content.Contains("security requirements", StringComparison.OrdinalIgnoreCase))
-                return "Password does not meet security requirements.";
+                return "Password must be at least 12 characters with uppercase, lowercase, number, and special character.";
             return "Invalid password format.";
         }
 
