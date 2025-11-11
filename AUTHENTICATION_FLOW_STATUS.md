@@ -1,16 +1,30 @@
 # CredVault Authentication & Credential Issuance Flow
 
-## 🔴 Current Status: MOCK IMPLEMENTATION
+## � Current Status: PARTIALLY IMPLEMENTED (30%)
 
-The current implementation has **UI pages** but uses **simulated/mock data** instead of real OAuth/OpenID4VCI flows.
+> **Last Updated**: November 10, 2025  
+> **See**: `CREDENTIAL_ISSUANCE_REQUIREMENTS.md` for detailed implementation plan
+
+### What's Complete:
+- ✅ User authentication (login/registration) - 100%
+- ✅ UI pages for credential issuance - 100%
+- ✅ ViewModels with MVVM structure - 100%
+- ✅ AuthenticationFlowService scaffolded - 50%
+- ✅ API client interfaces defined - 100%
+
+### What's Pending:
+- ⏳ OAuth browser flow with real issuers - 0%
+- ⏳ Credential offer API integration - 0%
+- ⏳ Credential storage in wallet - 0%
+- ⏳ Dashboard display of credentials - 0%
 
 ---
 
 ## ✅ Proper Implementation Flow (OpenID4VCI Standard)
 
 ### **Step 1: User Selects Credential Type**
-**Page:** `SelectCredentialTypePage`
-**Status:** ✅ COMPLETE (UI working)
+**Page:** `SelectCredentialTypePage`  
+**Status:** ✅ COMPLETE (UI working, API integration pending)
 
 ```
 User taps "Add Credential" → Sees 3 options:
@@ -20,49 +34,74 @@ User taps "Add Credential" → Sees 3 options:
 → User selects one → Taps "Continue"
 ```
 
+**What's Working:**
+- ✅ UI page displays credential types
+- ✅ User can select credential type
+- ✅ Navigation to authentication page
+
+**What's Pending:**
+- ⏳ Load credential types from `/api/v1/wallet/Issuer` API
+- ⏳ Dynamic issuer list instead of hardcoded
+
 ---
 
-### **Step 2: Start Authentication Flow** ⚠️ NEEDS IMPLEMENTATION
-**What should happen:**
+### **Step 2: Start Authentication Flow** 
+**Status:** 🟡 PARTIAL (30% - service exists, OAuth integration pending)
+
+**What Should Happen:**
+See `CREDENTIAL_ISSUANCE_REQUIREMENTS.md` Phase 2 for detailed implementation plan.
 
 ```csharp
 // In AddCredentialViewModel.ProceedToAuthenticationAsync()
 
-// 1. Get issuer metadata and authorization URL
-var authFlowService = new AuthenticationFlowService(...);
-var authUrlResult = await authFlowService.StartCredentialIssuanceFlowAsync(
+// 1. Get authorization URL from AuthenticationFlowService
+var authUrlResult = await _authFlowService.StartCredentialIssuanceFlowAsync(
     credentialType: "NationalID",
     issuerId: "gov-id-authority"
 );
 
 // 2. Launch platform WebAuthenticator (opens browser)
+#if ANDROID || IOS
 var result = await WebAuthenticator.AuthenticateAsync(
-    new Uri(authUrlResult.Data), // https://identity.gov/oauth/authorize?...
-    new Uri("credvault://oauth-callback")
-);
+    new WebAuthenticatorOptions {
+        Url = new Uri(authUrlResult.Data),
+        CallbackUrl = new Uri("credvault://oauth-callback"),
+        PrefersEphemeralWebBrowserSession = true
+    });
+#endif
 
 // 3. Extract authorization code from callback
 var authCode = result.Properties["code"];
 var state = result.Properties["state"];
 
 // 4. Exchange code for access token
-var tokenResult = await authFlowService.HandleOAuthCallbackAsync(authCode, state);
+var tokenResult = await _authFlowService.HandleOAuthCallbackAsync(authCode, state);
 ```
 
-**Current Issue:** 
-- ❌ Just shows a loading screen with fake progress bar
-- ❌ No actual browser redirect
-- ❌ No OAuth flow
+**What's Working:**
+- ✅ AuthenticationFlowService class created
+- ✅ Method signatures defined
+- ✅ Windows simulation logic (for testing)
+
+**What's Pending:**
+- ⏳ Real OAuth URL generation with PKCE
+- ⏳ WebAuthenticator integration on Android/iOS
+- ⏳ Deep link configuration (credvault://oauth-callback)
+- ⏳ Token exchange API call
+- ⏳ Token storage in SecureStorage
 
 ---
 
-### **Step 3: Request Credential Offer** ⚠️ NEEDS IMPLEMENTATION
-**What should happen:**
+### **Step 3: Request Credential Offer**
+**Status:** 🔴 NOT STARTED (mock data currently)
+
+**What Should Happen:**
+See `CREDENTIAL_ISSUANCE_REQUIREMENTS.md` Phase 3.
 
 ```csharp
 // After authentication success, request credential details from issuer
 
-var offerResult = await authFlowService.RequestCredentialIssuanceAsync(
+var offerResult = await _authFlowService.RequestCredentialIssuanceAsync(
     credentialType: "NationalID",
     issuerId: "gov-id-authority"
 );
@@ -74,15 +113,20 @@ var offerResult = await authFlowService.RequestCredentialIssuanceAsync(
 // - Schema ID
 ```
 
-**Current Issue:**
-- ❌ Uses hardcoded mock claims
-- ❌ No actual API call to issuer
+**What's Working:**
+- ✅ CredentialOfferDetails model defined
+- ✅ Method signature in AuthenticationFlowService
+
+**What's Pending:**
+- ⏳ Call `/api/v1/wallet/CredentialDiscovery/credential_offer` API
+- ⏳ Parse credential offer response
+- ⏳ Map claims to UI models
 
 ---
 
 ### **Step 4: Show Consent & Review Page**
-**Page:** `ConsentReviewPage`
-**Status:** ⚠️ PARTIAL (UI exists, but shows mock data)
+**Page:** `ConsentReviewPage`  
+**Status:** ✅ COMPLETE (UI ready, awaiting real data)
 
 ```
 User sees:
@@ -99,19 +143,27 @@ User sees:
 [Confirm Issuance]
 ```
 
-**What needs fixing:**
-- ✅ UI is good
-- ❌ Claims should come from `authFlowService.RequestCredentialIssuanceAsync()` result
-- ❌ Claims are currently hardcoded
+**What's Working:**
+- ✅ UI page displays credential claims
+- ✅ Checkboxes for review/consent
+- ✅ Confirm button with validation
+
+**What's Pending:**
+- ⏳ Load real claims from credential offer (Step 3)
+- ⏳ Display issuer logo and details
+- ⏳ Format claims properly for display
 
 ---
 
-### **Step 5: Issue & Store Credential** ⚠️ NEEDS IMPLEMENTATION
-**What should happen:**
+### **Step 5: Issue & Store Credential**
+**Status:** 🔴 NOT STARTED (mock implementation)
+
+**What Should Happen:**
+See `CREDENTIAL_ISSUANCE_REQUIREMENTS.md` Phase 3.
 
 ```csharp
 // When user taps "Confirm Issuance"
-var storeResult = await authFlowService.AcceptAndStoreCredentialAsync(
+var storeResult = await _authFlowService.AcceptAndStoreCredentialAsync(
     offerDetails: credentialOffer,
     userConsented: true
 );
@@ -126,10 +178,105 @@ if (storeResult.IsSuccess)
 }
 ```
 
-**Current Issue:**
-- ❌ No actual credential issuance
-- ❌ No storage in wallet
-- ❌ Just navigates to confirmation page with fake success
+**What's Working:**
+- ✅ UI confirmation page designed
+- ✅ Method signature defined
+
+**What's Pending:**
+- ⏳ Call `/api/v1/wallet/credential` POST endpoint
+- ⏳ Store credential in SecureStorage
+- ⏳ Create holder record if not exists
+- ⏳ Update dashboard to show new credential
+
+---
+
+## 📋 Implementation Roadmap
+
+**For detailed 6-phase implementation plan**, see:
+### `CREDENTIAL_ISSUANCE_REQUIREMENTS.md`
+
+**Quick Summary:**
+- **Phase 1**: Foundation & platform configuration (1 day)
+- **Phase 2**: OAuth implementation (1 day) ← **CURRENT FOCUS**
+- **Phase 3**: Credential issuance (1 day)
+- **Phase 4**: ViewModel integration (1 day)
+- **Phase 5**: Error handling & polish (1 day)
+- **Phase 6**: Testing & documentation (1 day)
+
+**Estimated Total**: 3-5 days
+
+---
+
+## 🛠️ Technical Status
+
+### Services Implemented:
+| Service | Status | Completion |
+|---------|--------|------------|
+| AuthenticationFlowService | 🟡 Partial | 30% |
+| IdentityService | ✅ Complete | 100% |
+| WalletService | 🟡 Partial | 70% |
+| NavigationService | ✅ Complete | 100% |
+
+### API Clients:
+| Client | Status | Endpoints |
+|--------|--------|-----------|
+| IIdentityApiClient | ✅ Complete | 3/3 |
+| IWalletApiClient | ✅ Defined | 20+ |
+| Refit Configuration | ✅ Complete | 100% |
+
+### Models:
+| Category | Status | Count |
+|----------|--------|-------|
+| OpenID4VCI DTOs | ✅ Complete | 8 |
+| Credential DTOs | ✅ Complete | 10+ |
+| Identity DTOs | ✅ Complete | 5 |
+| Total Models | ✅ Complete | 40+ |
+
+---
+
+## 🔄 Recent Progress (November 2025)
+
+### Completed:
+- ✅ Authentication flow (login/registration) - 100%
+- ✅ All UI pages designed - 100%
+- ✅ MVVM ViewModels created - 100%
+- ✅ AuthenticationFlowService scaffolded - 30%
+
+### In Progress:
+- 🟡 OAuth browser authentication - 0% (next task)
+- 🟡 Credential offer integration - 0%
+
+### Upcoming:
+- ⏳ Credential storage implementation
+- ⏳ Dashboard integration
+- ⏳ End-to-end testing
+
+---
+
+## 📞 Next Steps
+
+1. **Test API Endpoints** (Today)
+   - Validate `/api/v1/wallet/Authorization/authorize`
+   - Validate `/api/v1/wallet/Authorization/token`
+   - Validate `/api/v1/wallet/CredentialDiscovery/credential_offer`
+   - Validate `/api/v1/wallet/credential`
+
+2. **Platform Configuration** (Today)
+   - Add deep link to AndroidManifest.xml
+   - Add URL scheme to Info.plist (iOS)
+   - Test deep link handling
+
+3. **OAuth Implementation** (Tomorrow)
+   - Implement PKCE in AuthenticationFlowService
+   - Test WebAuthenticator on Android
+   - Handle OAuth callback
+
+4. **Credential Issuance** (Day 3)
+   - Integrate credential offer API
+   - Implement credential storage
+   - Test end-to-end flow
+
+**See `CREDENTIAL_ISSUANCE_REQUIREMENTS.md` for complete implementation details.**
 
 ---
 

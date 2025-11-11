@@ -1,17 +1,53 @@
 # 📋 CredVault Project - Quick Start Guide
 
-**Last Updated**: October 31, 2025
+**Last Updated**: November 10, 2025
 
 ---
 
 ## 🎯 What We're Building
 
-A **Digital Wallet Mobile Application** (.NET MAUI 8) that consumes existing microservices:
+A **Digital Wallet Mobile Application** (.NET MAUI 9) that consumes existing microservices:
 - **Wallet API** - Credential management, issuance, verification
 - **Identity API** - Authentication and user management
 - **Consent API** - Consent and delegation management
 - **Payments API** - Payment processing
 - Mobile app provides UI/UX for iOS and Android
+
+## 📊 Project Status (November 10, 2025)
+
+**Overall Progress: ~40%**
+
+| Component | Status | Completion |
+|-----------|--------|------------|
+| Infrastructure & Architecture | ✅ Complete | 100% |
+| User Authentication | ✅ Complete | 100% |
+| UI/UX Implementation | 🟡 Advanced | 80% |
+| Credential Issuance | 🟡 In Progress | 15% |
+| Credential Management | 🔴 Not Started | 0% |
+| Presentation/Verification | 🔴 Not Started | 0% |
+| Testing | 🔴 Not Started | 0% |
+
+### ✅ What's Working:
+- User registration and login (with Azure APIs)
+- Dashboard navigation and user profile display
+- Beautiful GovStack-compliant UI
+- All 17 ViewModels and 25+ pages implemented
+- Azure Container Apps deployment (7 microservices)
+
+### 🟡 In Progress:
+- **Credential Issuance Flow** (15% complete)
+  - OAuth integration with WebAuthenticator
+  - Credential offer retrieval from issuers
+  - Secure credential storage
+
+### 🔴 Not Started:
+- Credential revocation/suspension
+- QR code presentation
+- Selective disclosure
+- Backup/restore
+- Comprehensive testing
+
+**For detailed status**: See `CURRENT_STATUS.md`
 
 ## 🌐 Deployment Status
 
@@ -21,19 +57,56 @@ A **Digital Wallet Mobile Application** (.NET MAUI 8) that consumes existing mic
 - **API Gateway:** Azure API Management (APIM)
 - **Base URL:** `https://apim-wallet-dev.azure-api.net`
 - **Documentation:** See `AZURE_API_ACCESS.md` for subscription keys and endpoints
+- **Test Account:** wasanthak@enadoc.com / Passw0rd!
 
 ---
 
-## 📚 Key Documents
+## 📚 Documentation Guide
 
-| Document | Purpose | When to Use |
-|----------|---------|-------------|
-| **DEVELOPMENT_PLAN.md** | Master development plan with 20 tasks | Daily task tracking and implementation reference |
-| **ARCHITECTURE.md** | System architecture and data flows | Understanding how systems interact |
-| **AZURE_API_ACCESS.md** | **🔥 Azure API configuration & access** | **Production API endpoints, subscription keys, and examples** |
-| **API_MAPPING.md** | UI screens mapped to API endpoints | Implementing specific features |
-| **instructions.md** | Original requirements and API spec | Reference for business requirements |
-| **api.md** | Wallet API endpoint list (Docker/Local) | Local development API reference |
+### Primary Documents (Start Here)
+1. **README.md** (this file) - Project overview and current status
+2. **CURRENT_STATUS.md** - Quick reference dashboard (40% progress, priorities, links)
+3. **CREDENTIAL_ISSUANCE_REQUIREMENTS.md** - Current implementation focus (detailed 6-phase plan)
+4. **ARCHITECTURE.md** - System architecture and design decisions
+
+### Reference Documents (Implementation)
+5. **API_MAPPING.md** - UI screens to API endpoint mapping
+6. **AZURE_API_ACCESS.md** - Production API credentials and endpoints
+7. **FIGMA_DESIGN_ANALYSIS.md** - UI/UX specifications
+8. **AUTHENTICATION_FLOW_STATUS.md** - OAuth/OpenID4VCI flow details
+9. **TESTING_GUIDE.md** - Manual testing procedures
+
+### Historical Documents (For Context)
+10. **DEVELOPMENT_PLAN.md** - Original 20-task roadmap (being updated with progress)
+11. **instructions.md** - Original requirements and specifications
+12. **api.md** - Local Docker API reference
+
+---
+
+## 🚀 Next Steps (Immediate)
+
+**Current Focus: Complete Credential Issuance Flow**
+
+See `CREDENTIAL_ISSUANCE_REQUIREMENTS.md` for detailed plan, but in summary:
+
+### This Week (Nov 11-15):
+1. ⏭️ Test Azure Wallet API endpoints
+2. ⏭️ Implement OAuth browser authentication
+3. ⏭️ Integrate credential offer retrieval
+4. ⏭️ Implement credential storage
+5. ⏭️ Test end-to-end flow
+
+### Implementation Phases:
+- **Phase 1**: Foundation & platform configuration (1 day)
+- **Phase 2**: OAuth implementation (1 day)
+- **Phase 3**: Credential issuance (1 day)
+- **Phase 4**: ViewModel integration (1 day)
+- **Phase 5**: Error handling & polish (1 day)
+- **Phase 6**: Testing & documentation (1 day)
+
+**Estimated Time**: 3-5 days for complete credential issuance
+
+**For quick status check**: See `CURRENT_STATUS.md`
 
 ---
 

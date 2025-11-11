@@ -1,22 +1,36 @@
 # 🗺️ GovStack Digital Wallet - Development Plan (Single Source of Truth)
 
 **Project**: Digital Wallet Mobile Application (Consumer of Microservices)  
-**Status**: Planning Phase  
-**Last Updated**: October 31, 2025  
-**Tech Stack**: .NET MAUI 8, MVVM, RestSharp/HttpClient, Secure Storage
+**Status**: In Progress (40% Complete)  
+**Last Updated**: November 10, 2025  
+**Tech Stack**: .NET MAUI 9, MVVM, Refit, CommunityToolkit.Mvvm, Secure Storage
+
+> ⚠️ **STATUS UPDATE (November 10, 2025)**: 
+> This document is being updated to reflect actual progress.
+> **See CREDENTIAL_ISSUANCE_REQUIREMENTS.md for current detailed roadmap.**
+>
+> **Current Overall Progress: ~40%**
+> - ✅ Foundation (Tasks 1-5): 100% Complete
+> - ✅ Authentication (Task 4): 100% Complete  
+> - 🟡 Credential Issuance (Task 6): 15% Complete
+> - 🔴 Advanced Features (Tasks 7-17): Not Started
+> - 🟡 UI Implementation (Tasks 18-19): 80% Complete
+> - 🔴 Testing (Task 20): Not Started
 
 ---
 
 ## 🏗️ Microservices Architecture
 
-Our mobile app is a **thin client** consuming existing backend microservices:
+Our mobile app is a **thin client** consuming existing backend microservices deployed to Azure:
 
-| Service | Base URL | Purpose |
+| Service | Azure URL | Purpose |
 |---------|----------|---------|
-| **Wallet API** | `http://localhost:7015/api/v1` | Core credential operations, issuance, verification |
-| **Identity API** | `http://localhost:7001` | Authentication, user management, tokens |
-| **Consent API** | `http://localhost:7002` | User consent management |
-| **Payments API** | `http://localhost:7004` | Payment processing |
+| **Wallet API** | `https://apim-wallet-dev.azure-api.net/wallet/api/v1` | Core credential operations, issuance, verification |
+| **Identity API** | `https://apim-wallet-dev.azure-api.net/identity/api/v1` | Authentication, user management, tokens |
+| **Consent API** | `https://apim-wallet-dev.azure-api.net/consent/api/v1` | User consent management |
+| **Payments API** | `https://apim-wallet-dev.azure-api.net/payments/api/v1` | Payment processing |
+
+**Subscription Key**: `4a47f13f76d54eb999efc2036245ddc2` (Required in `Ocp-Apim-Subscription-Key` header)
 
 **Key Point**: We are **NOT building a backend** - we're building a mobile app that integrates with existing APIs.
 
@@ -26,11 +40,11 @@ Our mobile app is a **thin client** consuming existing backend microservices:
 
 | Phase | Tasks | Status | Priority |
 |-------|-------|--------|----------|
-| **Phase 1: Foundation** | Tasks 1-5 | 🔴 Not Started | CRITICAL |
-| **Phase 2: Core Features** | Tasks 6-12 | 🔴 Not Started | HIGH |
-| **Phase 3: Advanced Features** | Tasks 13-17 | 🔴 Not Started | MEDIUM |
-| **Phase 4: UI/UX Implementation** | Tasks 18-19 | 🔴 Not Started | HIGH |
-| **Phase 5: Testing & Polish** | Task 20 | 🔴 Not Started | MEDIUM |
+| **Phase 1: Foundation** | Tasks 1-5 | � Complete (100%) | CRITICAL |
+| **Phase 2: Core Features** | Tasks 6-12 | � In Progress (15%) | HIGH |
+| **Phase 3: Advanced Features** | Tasks 13-17 | 🔴 Not Started (0%) | MEDIUM |
+| **Phase 4: UI/UX Implementation** | Tasks 18-19 | � Advanced (80%) | HIGH |
+| **Phase 5: Testing & Polish** | Task 20 | 🔴 Not Started (0%) | MEDIUM |
 
 **Legend**: 🔴 Not Started | 🟡 In Progress | 🟢 Complete | ⚠️ Blocked
 
@@ -39,15 +53,101 @@ Our mobile app is a **thin client** consuming existing backend microservices:
 ## 🎯 Phase 1: Foundation (Week 1)
 
 ### ✅ Task 1: Mobile App Project Setup
-**Priority**: CRITICAL | **Estimated Time**: 3 hours
+**Priority**: CRITICAL | **Estimated Time**: 3 hours  
+**Status**: 🟢 COMPLETE | **Completed**: October 2025
 
 **Deliverables**:
-- [ ] Verify Docker services are running (7 containers total):
-  ```bash
-  docker ps
-  # Verify Wallet API: http://localhost:7015/api/v1/wallet/swagger/index.html
-  # Verify Identity API: http://localhost:7001
-  # Verify Consent API: http://localhost:7002
+- [x] Verify Docker services are running (7 containers total) - **Note**: Deployed to Azure instead
+- [x] Create .NET MAUI 9 solution:
+  ```
+  CredVault.sln
+  ├── src/
+  │   ├── CredVault.Mobile/           # .NET MAUI App
+  │   │   ├── Views/                  # XAML Pages (25+ pages)
+  │   │   ├── ViewModels/             # MVVM ViewModels (17 ViewModels)
+  │   │   ├── Services/               # API clients, storage
+  │   │   ├── Models/                 # DTOs, domain models (40+ models)
+  │   │   ├── Converters/             # Value converters
+  │   │   └── Resources/              # Images, styles
+  │   └── CredVault.Mobile.Core/      # Shared business logic
+  └── tests/
+      └── CredVault.Mobile.Tests/     # Unit tests (to be implemented)
+  ```
+- [x] Add NuGet packages:
+  - `CommunityToolkit.Mvvm` (MVVM helpers) ✅
+  - `CommunityToolkit.Maui` (UI components) ✅
+  - `Refit` (HTTP client) ✅
+  - `ZXing.Net.Maui` (QR scanning) ✅
+  - `System.Text.Json` ✅
+- [x] Configure dependency injection in `MauiProgram.cs` ✅
+- [x] Set up MVVM navigation service ✅
+- [x] Create base ViewModel class ✅
+
+**Acceptance Criteria**: ✅ All Complete
+- Azure services verified and accessible
+- App launches on Android emulator (Pixel_5_API_34)
+- DI container configured correctly
+- Can navigate between pages
+- Base architecture in place
+
+**Dependencies**: None
+
+**Notes**:
+- Deployed to Azure Container Apps instead of Docker
+- Used Refit instead of RestSharp for declarative API clients
+- .NET MAUI 9 instead of MAUI 8
+
+---
+
+### ✅ Task 2: API Client Models & DTOs
+**Priority**: CRITICAL | **Estimated Time**: 4 hours  
+**Status**: 🟢 COMPLETE | **Completed**: October 2025
+
+**Deliverables**:
+- [x] Create C# models in `CredVault.Mobile/Models/` matching Wallet API responses
+- [x] Created 40+ DTOs including:
+  - Credential.cs (CredentialResponseDto, CredentialRequestDto, CredentialStatusResponseDto)
+  - OpenID4VCI.cs (OpenID4VCICredentialRequestDto, AuthorizationRequestDto, TokenResponseDto)
+  - Identity.cs (LoginRequestDto, LoginResponseDto, UserProfileDto, RegistrationRequestDto)
+  - Holder.cs, Issuer.cs, OpenID4VP.cs, DeviceTransfer.cs, Payments.cs, etc.
+- [x] Create request/response wrappers ✅
+- [x] Add JSON serialization attributes ✅
+- [x] Document models with XML comments ✅
+
+**Acceptance Criteria**: ✅ All Complete
+- All models match Azure API schema
+- JSON serialization works correctly
+- Models are strongly typed
+- Clear documentation for each property
+
+**Dependencies**: Task 1 ✅
+
+**Notes**:
+- Models updated based on actual API responses (learned: direct responses, not always wrapped)
+- LoginRequestDto uses `Email` field (not `Username`)
+- UserProfileDto includes `Id`, `Roles`, `LoginCount` based on actual API
+
+---
+
+### ✅ Task 3: WalletApiClient Service  
+**Priority**: CRITICAL | **Estimated Time**: 6 hours  
+**Status**: 🟢 COMPLETE | **Completed**: October 2025
+
+**Deliverables**:
+- [x] Create `IWalletApiClient` interface with Refit attributes ✅
+- [x] Implement all credential endpoints ✅
+- [x] Implement holder endpoints ✅
+- [x] Implement OpenID4VCI endpoints ✅
+- [x] Implement verification endpoints ✅
+- [x] Implement device transfer endpoints ✅
+- [x] Implement activity log endpoints ✅
+- [x] Configure HttpClientFactory and Refit in DI ✅
+
+**Acceptance Criteria**: ✅ All Complete
+- IWalletApiClient interface complete with 20+ endpoints
+- Configured with Azure APIM base URL and subscription key
+- All endpoints use proper HTTP verbs and routes
+- Error handling configured
   # Verify Payments API: http://localhost:7004
   # Verify PostgreSQL: localhost:5432
   # Verify SQL Server: localhost:1433
