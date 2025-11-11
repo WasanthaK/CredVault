@@ -19,6 +19,18 @@ public static class ApiConfiguration
         public static string IdentityBaseUrl => $"{ApiGatewayBaseUrl}{IdentityBasePath}";
         public static string ConsentBaseUrl => $"{ApiGatewayBaseUrl}{ConsentBasePath}";
         public static string PaymentsBaseUrl => $"{ApiGatewayBaseUrl}{PaymentsBasePath}";
+        
+        // OpenID Connect / OAuth Endpoints (from /.well-known/openid-configuration)
+        public static class OAuth
+        {
+            public const string AuthorizationEndpoint = "http://wallet-identity.kindhill-eee6017a.eastus.azurecontainerapps.io/connect/authorize";
+            public const string TokenEndpoint = "http://wallet-identity.kindhill-eee6017a.eastus.azurecontainerapps.io/connect/token";
+            public const string UserInfoEndpoint = "http://wallet-identity.kindhill-eee6017a.eastus.azurecontainerapps.io/connect/userinfo";
+            public const string Issuer = "http://wallet-identity.kindhill-eee6017a.eastus.azurecontainerapps.io";
+            public const string ClientId = "credvault-mobile";
+            public const string RedirectUri = "credvault://oauth-callback";
+            public static readonly string[] Scopes = { "openid", "profile", "email", "roles" };
+        }
     }
     
     // 🐳 Local Development - Direct Docker microservice access

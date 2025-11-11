@@ -1,6 +1,12 @@
 # 🏗️ GovStack Digital Wallet - Architecture Overview
 
-**Last Updated**: October 31, 2025
+**Last Updated**: November 11, 2025
+
+> **Recent Updates (Nov 11, 2025)**:
+> - ✅ OAuth/PKCE implementation complete with Azure Identity API
+> - ✅ Deep links configured for Android & iOS
+> - ✅ All 4 Azure services documented with Swagger URLs
+> - See `AZURE_SERVICES_CONFIGURATION.md` for complete service details
 
 ---
 

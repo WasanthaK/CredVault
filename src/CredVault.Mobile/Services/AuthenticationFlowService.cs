@@ -1,10 +1,13 @@
 using CredVault.Mobile.Models;
 using Microsoft.Extensions.Logging;
+using System.Security.Cryptography;
+using System.Text;
+using System.Net.Http.Json;
 
 namespace CredVault.Mobile.Services;
 
 /// <summary>
-/// Service for handling OAuth 2.0 and OpenID4VCI authentication flows
+/// Service for handling OAuth 2.0 and OpenID4VCI authentication flows with PKCE
 /// </summary>
 public class AuthenticationFlowService
 {
@@ -16,6 +19,8 @@ public class AuthenticationFlowService
     private const string AccessTokenKey = "access_token";
     private const string RefreshTokenKey = "refresh_token";
     private const string TokenExpiryKey = "token_expiry";
+    private const string PKCEVerifierKey = "pkce_code_verifier";
+    private const string PKCEStateKey = "pkce_state";
 
     public AuthenticationFlowService(
         IdentityService identityService,
@@ -30,8 +35,8 @@ public class AuthenticationFlowService
     }
 
     /// <summary>
-    /// Start the credential issuance flow with OpenID4VCI
-    /// Returns the authorization URL that should be opened in a browser
+    /// Start the credential issuance flow with OpenID4VCI and PKCE
+    /// Opens browser for authentication and returns when complete
     /// </summary>
     public async Task<ServiceResult<string>> StartCredentialIssuanceFlowAsync(string credentialType, string issuerId)
     {
@@ -40,65 +45,64 @@ public class AuthenticationFlowService
             _logger.LogInformation("Starting credential issuance flow for type: {CredentialType}, issuer: {IssuerId}", 
                 credentialType, issuerId);
 
-            // Step 1: Get credential offer from the issuer
-            // In a real implementation, this would come from a QR code scan or deep link
-            var credentialOfferUrl = BuildCredentialOfferUrl(credentialType, issuerId);
+            // Step 1: Generate PKCE parameters
+            var pkce = GeneratePKCEParameters();
+            await _secureStorage.SetAsync(PKCEVerifierKey, pkce.CodeVerifier);
+            await _secureStorage.SetAsync(PKCEStateKey, pkce.State);
 
-            // Step 2: Parse the credential offer to get the issuer's metadata
-            var issuerMetadata = await GetIssuerMetadataAsync(issuerId);
-            if (!issuerMetadata.IsSuccess || issuerMetadata.Data is null)
+            // Step 2: Build authorization URL with PKCE challenge
+            var authUrl = BuildAuthorizationUrlWithPKCE(credentialType, issuerId, pkce);
+
+            _logger.LogInformation("Opening browser for authentication with PKCE");
+
+            // Step 3: Open browser and wait for callback
+            var result = await WebAuthenticator.Default.AuthenticateAsync(
+                new Uri(authUrl),
+                new Uri("credvault://oauth-callback"));
+
+            // Step 4: Extract authorization code from callback
+            if (result.Properties.TryGetValue("code", out var authCode) &&
+                result.Properties.TryGetValue("state", out var returnedState))
             {
-                return ServiceResult<string>.Failure(
-                    issuerMetadata.ErrorMessage ?? "Failed to get issuer metadata",
-                    issuerMetadata.ErrorDetails);
+                // Validate state to prevent CSRF attacks
+                var storedState = await _secureStorage.GetAsync(PKCEStateKey);
+                if (storedState != returnedState)
+                {
+                    return ServiceResult<string>.Failure("State mismatch - possible CSRF attack");
+                }
+
+                // Step 5: Exchange authorization code for access token using PKCE verifier
+                var tokenResult = await ExchangeCodeForTokenWithPKCEAsync(authCode);
+                if (!tokenResult.IsSuccess)
+                {
+                    return ServiceResult<string>.Failure("Failed to exchange authorization code for token");
+                }
+
+                return ServiceResult<string>.Success(tokenResult.Data?.AccessToken ?? string.Empty);
             }
 
-            // Step 3: Build the authorization URL for the identity provider
-            var authUrl = BuildAuthorizationUrl(issuerMetadata.Data, credentialType);
-
-            _logger.LogInformation("Authorization URL created: {AuthUrl}", authUrl);
-            return ServiceResult<string>.Success(authUrl);
+            return ServiceResult<string>.Failure("No authorization code received");
+        }
+        catch (TaskCanceledException)
+        {
+            _logger.LogInformation("User cancelled authentication");
+            return ServiceResult<string>.Failure("Authentication cancelled by user");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error starting credential issuance flow");
             return ServiceResult<string>.Failure($"Failed to start credential issuance: {ex.Message}");
         }
-    }
-
-    /// <summary>
-    /// Handle the OAuth callback after user authenticates with identity provider
-    /// </summary>
-    public async Task<ServiceResult<string>> HandleOAuthCallbackAsync(string authorizationCode, string state)
-    {
-        try
+        finally
         {
-            _logger.LogInformation("Handling OAuth callback with authorization code");
-
-            // Step 1: Exchange authorization code for access token
-            var tokenResult = await ExchangeCodeForTokenAsync(authorizationCode);
-            if (!tokenResult.IsSuccess || tokenResult.Data is null)
-            {
-                return ServiceResult<string>.Failure(
-                    tokenResult.ErrorMessage ?? "Failed to exchange authorization code for token",
-                    tokenResult.ErrorDetails);
-            }
-
-            // Step 2: Store tokens securely
-            await StoreTokensAsync(tokenResult.Data);
-
-            _logger.LogInformation("OAuth callback handled successfully");
-            return ServiceResult<string>.Success(tokenResult.Data.AccessToken);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error handling OAuth callback");
-            return ServiceResult<string>.Failure($"Failed to handle OAuth callback: {ex.Message}");
+            // Clean up PKCE parameters
+            _secureStorage.Remove(PKCEVerifierKey);
+            _secureStorage.Remove(PKCEStateKey);
         }
     }
 
     /// <summary>
-    /// Request credential issuance after authentication
+    /// Request credential offer from wallet API after authentication
     /// </summary>
     public async Task<ServiceResult<CredentialOfferDetails>> RequestCredentialIssuanceAsync(
         string credentialType, 
@@ -106,7 +110,7 @@ public class AuthenticationFlowService
     {
         try
         {
-            _logger.LogInformation("Requesting credential issuance for type: {CredentialType}", credentialType);
+            _logger.LogInformation("Requesting credential offer from wallet for type: {CredentialType}", credentialType);
 
             // Step 1: Get stored access token
             var accessToken = await _secureStorage.GetAsync(AccessTokenKey);
@@ -115,11 +119,38 @@ public class AuthenticationFlowService
                 return ServiceResult<CredentialOfferDetails>.Failure("No access token available. Please authenticate first.");
             }
 
-            // Step 2: Request credential from issuer using the access token
-            // This would call the issuer's credential endpoint
-            var credentialOffer = await GetCredentialOfferDetailsAsync(credentialType, issuerId, accessToken);
+            // Step 2: Call wallet API to get credential offer
+            // This will call: GET /api/v1/wallet/discovery/credential_offer
+            var walletBaseUrl = ApiConfiguration.GetWalletBaseUrl();
+            using var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
+            httpClient.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", ApiConfiguration.Azure.SubscriptionKey);
 
-            return credentialOffer;
+            var url = $"{walletBaseUrl}/api/v1/wallet/discovery/credential_offer?type={Uri.EscapeDataString(credentialType)}&issuerId={Uri.EscapeDataString(issuerId)}";
+            var response = await httpClient.GetAsync(url);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                _logger.LogError("Credential offer request failed: {StatusCode} - {Error}", response.StatusCode, error);
+                return ServiceResult<CredentialOfferDetails>.Failure($"Failed to get credential offer: {response.StatusCode}");
+            }
+
+            // TODO: Parse actual response from API based on Swagger schema
+            // For now, return mock data
+            var mockOffer = new CredentialOfferDetails
+            {
+                CredentialType = credentialType,
+                IssuerName = "Test Issuer",
+                IssuerId = issuerId,
+                Claims = new Dictionary<string, object>
+                {
+                    ["fullName"] = "John Doe",
+                    ["email"] = "john.doe@example.com"
+                }
+            };
+
+            return ServiceResult<CredentialOfferDetails>.Success(mockOffer);
         }
         catch (Exception ex)
         {
@@ -185,72 +216,106 @@ public class AuthenticationFlowService
 
     #region Private Helper Methods
 
-    private string BuildCredentialOfferUrl(string credentialType, string issuerId)
+    /// <summary>
+    /// Generate PKCE parameters for secure OAuth flow
+    /// </summary>
+    private PKCEParameters GeneratePKCEParameters()
     {
-        // In a real implementation, this would be received from a QR code or deep link
-        // For now, we construct a mock credential offer URL
-        var baseUrl = ApiConfiguration.GetIdentityBaseUrl();
-        return $"{baseUrl}/credential-offer?type={Uri.EscapeDataString(credentialType)}&issuer={Uri.EscapeDataString(issuerId)}";
+        // Generate cryptographically random code verifier (43-128 characters)
+        var codeVerifierBytes = new byte[32];
+        using (var rng = RandomNumberGenerator.Create())
+        {
+            rng.GetBytes(codeVerifierBytes);
+        }
+        var codeVerifier = Convert.ToBase64String(codeVerifierBytes)
+            .TrimEnd('=')
+            .Replace('+', '-')
+            .Replace('/', '_');
+
+        // Generate code challenge using SHA256
+        byte[] challengeBytes;
+        using (var sha256 = SHA256.Create())
+        {
+            challengeBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(codeVerifier));
+        }
+        var codeChallenge = Convert.ToBase64String(challengeBytes)
+            .TrimEnd('=')
+            .Replace('+', '-')
+            .Replace('/', '_');
+
+        return new PKCEParameters
+        {
+            CodeVerifier = codeVerifier,
+            CodeChallenge = codeChallenge,
+            CodeChallengeMethod = "S256",
+            State = Guid.NewGuid().ToString("N")
+        };
     }
 
-    private string BuildAuthorizationUrl(IssuerMetadata metadata, string credentialType)
+    /// <summary>
+    /// Build authorization URL with PKCE challenge
+    /// </summary>
+    private string BuildAuthorizationUrlWithPKCE(string credentialType, string issuerId, PKCEParameters pkce)
     {
-        var redirectUri = "credvault://oauth-callback";
-        var state = Guid.NewGuid().ToString("N");
-        var scope = "openid profile credential_issuance";
+        var authUrl = $"{ApiConfiguration.Azure.OAuth.AuthorizationEndpoint}" +
+                      $"?response_type=code" +
+                      $"&client_id={ApiConfiguration.Azure.OAuth.ClientId}" +
+                      $"&redirect_uri={Uri.EscapeDataString(ApiConfiguration.Azure.OAuth.RedirectUri)}" +
+                      $"&scope={Uri.EscapeDataString(string.Join(" ", ApiConfiguration.Azure.OAuth.Scopes))}" +
+                      $"&state={pkce.State}" +
+                      $"&code_challenge={pkce.CodeChallenge}" +
+                      $"&code_challenge_method={pkce.CodeChallengeMethod}" +
+                      $"&credential_type={Uri.EscapeDataString(credentialType)}" +
+                      $"&issuer_id={Uri.EscapeDataString(issuerId)}";
 
-        return $"{metadata.AuthorizationEndpoint}" +
-               $"?response_type=code" +
-               $"&client_id={Uri.EscapeDataString(metadata.ClientId)}" +
-               $"&redirect_uri={Uri.EscapeDataString(redirectUri)}" +
-               $"&scope={Uri.EscapeDataString(scope)}" +
-               $"&state={state}" +
-               $"&credential_type={Uri.EscapeDataString(credentialType)}";
+        return authUrl;
     }
 
-    private async Task<ServiceResult<IssuerMetadata>> GetIssuerMetadataAsync(string issuerId)
+    /// <summary>
+    /// Exchange authorization code for access token using PKCE verifier
+    /// </summary>
+    private async Task<ServiceResult<TokenResponse>> ExchangeCodeForTokenWithPKCEAsync(string authorizationCode)
     {
         try
         {
-            // In a real implementation, this would fetch from /.well-known/openid-configuration
-            // For now, return mock metadata
-            var metadata = new IssuerMetadata
+            var codeVerifier = await _secureStorage.GetAsync(PKCEVerifierKey);
+            if (string.IsNullOrEmpty(codeVerifier))
             {
-                IssuerId = issuerId,
-                AuthorizationEndpoint = $"{ApiConfiguration.GetIdentityBaseUrl()}/connect/authorize",
-                TokenEndpoint = $"{ApiConfiguration.GetIdentityBaseUrl()}/connect/token",
-                CredentialEndpoint = $"{ApiConfiguration.GetIdentityBaseUrl()}/credential",
-                ClientId = "credvault-mobile-app"
-            };
+                return ServiceResult<TokenResponse>.Failure("PKCE code verifier not found");
+            }
 
-            return ServiceResult<IssuerMetadata>.Success(metadata);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting issuer metadata");
-            return ServiceResult<IssuerMetadata>.Failure($"Failed to get issuer metadata: {ex.Message}");
-        }
-    }
-
-    private async Task<ServiceResult<TokenResponse>> ExchangeCodeForTokenAsync(string authorizationCode)
-    {
-        try
-        {
-            // In a real implementation, this would call the token endpoint
-            // For now, return a mock token response
-            var tokenResponse = new TokenResponse
+            using var httpClient = new HttpClient();
+            var tokenRequestContent = new FormUrlEncodedContent(new[]
             {
-                AccessToken = $"mock_access_token_{Guid.NewGuid():N}",
-                RefreshToken = $"mock_refresh_token_{Guid.NewGuid():N}",
-                ExpiresIn = 3600,
-                TokenType = "Bearer"
-            };
+                new KeyValuePair<string, string>("grant_type", "authorization_code"),
+                new KeyValuePair<string, string>("code", authorizationCode),
+                new KeyValuePair<string, string>("redirect_uri", ApiConfiguration.Azure.OAuth.RedirectUri),
+                new KeyValuePair<string, string>("client_id", ApiConfiguration.Azure.OAuth.ClientId),
+                new KeyValuePair<string, string>("code_verifier", codeVerifier)
+            });
+
+            var response = await httpClient.PostAsync(ApiConfiguration.Azure.OAuth.TokenEndpoint, tokenRequestContent);
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                _logger.LogError("Token exchange failed: {StatusCode} - {Error}", response.StatusCode, error);
+                return ServiceResult<TokenResponse>.Failure($"Token exchange failed: {response.StatusCode}");
+            }
+
+            var tokenResponse = await response.Content.ReadFromJsonAsync<TokenResponse>();
+            if (tokenResponse == null)
+            {
+                return ServiceResult<TokenResponse>.Failure("Invalid token response");
+            }
+
+            // Store tokens securely
+            await StoreTokensAsync(tokenResponse);
 
             return ServiceResult<TokenResponse>.Success(tokenResponse);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error exchanging authorization code for token");
+            _logger.LogError(ex, "Error exchanging authorization code for token with PKCE");
             return ServiceResult<TokenResponse>.Failure($"Failed to exchange code for token: {ex.Message}");
         }
     }
@@ -258,88 +323,16 @@ public class AuthenticationFlowService
     private async Task StoreTokensAsync(TokenResponse tokenResponse)
     {
         await _secureStorage.SetAsync(AccessTokenKey, tokenResponse.AccessToken);
-        await _secureStorage.SetAsync(RefreshTokenKey, tokenResponse.RefreshToken);
+        
+        if (!string.IsNullOrEmpty(tokenResponse.RefreshToken))
+        {
+            await _secureStorage.SetAsync(RefreshTokenKey, tokenResponse.RefreshToken);
+        }
         
         var expiry = DateTime.UtcNow.AddSeconds(tokenResponse.ExpiresIn);
         await _secureStorage.SetAsync(TokenExpiryKey, expiry.ToString("O"));
 
         _logger.LogInformation("Tokens stored securely");
-    }
-
-    private async Task<ServiceResult<CredentialOfferDetails>> GetCredentialOfferDetailsAsync(
-        string credentialType, 
-        string issuerId, 
-        string accessToken)
-    {
-        try
-        {
-            // In a real implementation, this would call the credential endpoint
-            // For now, return mock offer details based on credential type
-            var offerDetails = credentialType.ToLower() switch
-            {
-                "nationalid" => new CredentialOfferDetails
-                {
-                    CredentialType = "NationalID",
-                    IssuerName = "Government ID Authority",
-                    IssuerId = issuerId,
-                    SubjectId = "user-123",
-                    SchemaId = "national-id-schema-v1",
-                    ExpirationDate = DateTime.UtcNow.AddYears(10),
-                    Claims = new Dictionary<string, object>
-                    {
-                        ["fullName"] = "John Doe",
-                        ["dateOfBirth"] = "1990-01-15",
-                        ["idNumber"] = "123-456-7890",
-                        ["nationality"] = "Citizen",
-                        ["photo"] = "base64_photo_data_here"
-                    }
-                },
-                "driverslicense" => new CredentialOfferDetails
-                {
-                    CredentialType = "DriversLicense",
-                    IssuerName = "Department of Motor Vehicles",
-                    IssuerId = issuerId,
-                    SubjectId = "user-123",
-                    SchemaId = "drivers-license-schema-v1",
-                    ExpirationDate = DateTime.UtcNow.AddYears(5),
-                    Claims = new Dictionary<string, object>
-                    {
-                        ["fullName"] = "John Doe",
-                        ["dateOfBirth"] = "1990-01-15",
-                        ["licenseNumber"] = "DL-9876543",
-                        ["class"] = "C",
-                        ["restrictions"] = "None",
-                        ["photo"] = "base64_photo_data_here"
-                    }
-                },
-                "universitydiploma" => new CredentialOfferDetails
-                {
-                    CredentialType = "UniversityDiploma",
-                    IssuerName = "State University",
-                    IssuerId = issuerId,
-                    SubjectId = "user-123",
-                    SchemaId = "university-diploma-schema-v1",
-                    ExpirationDate = null,
-                    Claims = new Dictionary<string, object>
-                    {
-                        ["fullName"] = "John Doe",
-                        ["degree"] = "Bachelor of Science",
-                        ["major"] = "Computer Science",
-                        ["graduationDate"] = "2020-05-15",
-                        ["gpa"] = "3.8",
-                        ["honors"] = "Cum Laude"
-                    }
-                },
-                _ => throw new ArgumentException($"Unknown credential type: {credentialType}")
-            };
-
-            return ServiceResult<CredentialOfferDetails>.Success(offerDetails);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting credential offer details");
-            return ServiceResult<CredentialOfferDetails>.Failure($"Failed to get credential offer: {ex.Message}");
-        }
     }
 
     #endregion
