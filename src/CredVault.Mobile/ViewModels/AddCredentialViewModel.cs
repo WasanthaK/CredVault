@@ -1,10 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using CredVault.Mobile.Models;
 using CredVault.Mobile.Services;
 using Microsoft.Extensions.Logging;
+using Microsoft.Maui.Authentication;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using CredentialOfferDetails = CredVault.Mobile.Models.CredentialOfferDetails;
 
 namespace CredVault.Mobile.ViewModels;
 

@@ -186,11 +186,11 @@ public class AuthenticationFlowService
             var credentialRequest = new CredentialRequestDto
             {
                 Type = offerDetails.CredentialType,
-                Subject = offerDetails.SubjectId,
+                Subject = "current-user", // Subject from authenticated user
                 Issuer = offerDetails.IssuerName,
                 IssuerId = offerDetails.IssuerId,
                 HolderId = "current-user-id", // TODO: Get from user session
-                SchemaId = offerDetails.SchemaId,
+                SchemaId = offerDetails.SchemaId ?? string.Empty,
                 Format = CredentialFormat.Jwt,
                 IssuanceDate = DateTime.UtcNow,
                 ExpirationDate = offerDetails.ExpirationDate,
@@ -211,6 +211,45 @@ public class AuthenticationFlowService
         {
             _logger.LogError(ex, "Error accepting and storing credential");
             return ServiceResult<CredentialResponseDto>.Failure($"Failed to store credential: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Handle OAuth callback - exchanges authorization code for access token
+    /// This is a public wrapper for use by ViewModels
+    /// </summary>
+    public async Task<ServiceResult<string>> HandleOAuthCallbackAsync(string authorizationCode, string state)
+    {
+        try
+        {
+            _logger.LogInformation("Handling OAuth callback");
+
+            // Validate state to prevent CSRF attacks
+            var storedState = await _secureStorage.GetAsync(PKCEStateKey);
+            if (storedState != state)
+            {
+                return ServiceResult<string>.Failure("State mismatch - possible CSRF attack");
+            }
+
+            // Exchange authorization code for access token using PKCE verifier
+            var tokenResult = await ExchangeCodeForTokenWithPKCEAsync(authorizationCode);
+            if (!tokenResult.IsSuccess)
+            {
+                return ServiceResult<string>.Failure(tokenResult.ErrorMessage ?? "Failed to exchange authorization code for token");
+            }
+
+            return ServiceResult<string>.Success(tokenResult.Data?.AccessToken ?? string.Empty);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error handling OAuth callback");
+            return ServiceResult<string>.Failure($"Failed to handle OAuth callback: {ex.Message}");
+        }
+        finally
+        {
+            // Clean up PKCE parameters
+            _secureStorage.Remove(PKCEVerifierKey);
+            _secureStorage.Remove(PKCEStateKey);
         }
     }
 
@@ -355,17 +394,6 @@ public class TokenResponse
     public string RefreshToken { get; set; } = string.Empty;
     public int ExpiresIn { get; set; }
     public string TokenType { get; set; } = string.Empty;
-}
-
-public class CredentialOfferDetails
-{
-    public string CredentialType { get; set; } = string.Empty;
-    public string IssuerName { get; set; } = string.Empty;
-    public string IssuerId { get; set; } = string.Empty;
-    public string SubjectId { get; set; } = string.Empty;
-    public string SchemaId { get; set; } = string.Empty;
-    public DateTime? ExpirationDate { get; set; }
-    public Dictionary<string, object> Claims { get; set; } = new();
 }
 
 #endregion
